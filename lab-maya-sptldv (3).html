@@ -1,0 +1,1913 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lab Maya SPtLDV — Sistem Pertidaksamaan Linear Dua Variabel</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" crossorigin="anonymous">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+<style>
+:root{
+  --bg:#f6f5f2;
+  --surface:#ffffff;
+  --ink:#1c2430;
+  --ink-soft:#5a6472;
+  --line:#e2e0d8;
+  --navy:#1e3a5f;
+  --navy-deep:#152a45;
+  --teal:#2f7a6e;
+  --amber:#c8802b;
+  --amber-soft:#f4e2c4;
+  --danger:#b8433a;
+  --ok:#2f7a4a;
+  --radius:10px;
+  --shadow:0 2px 10px rgba(28,36,48,.08);
+  font-family: "Source Sans 3", "Segoe UI", Arial, sans-serif;
+}
+@font-face{ }
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);}
+body{font-family:"Source Sans 3","Segoe UI",Arial,sans-serif;line-height:1.55;}
+h1,h2,h3,h4{font-family:"Georgia","Times New Roman",serif;color:var(--navy-deep);margin:.2em 0 .4em;}
+h1{font-size:1.5rem;} h2{font-size:1.25rem;} h3{font-size:1.08rem;}
+.app{max-width:1180px;margin:0 auto;padding:0 16px 60px;}
+header.topbar{
+  background:linear-gradient(135deg,var(--navy) 0%,var(--navy-deep) 100%);
+  color:#fff; padding:18px 20px; border-radius:0 0 16px 16px; margin-bottom:14px;
+  display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;
+}
+header.topbar .brand{display:flex;align-items:center;gap:12px;}
+header.topbar .brand .mark{width:42px;height:42px;border-radius:9px;background:var(--amber);
+  display:flex;align-items:center;justify-content:center;font-family:Georgia,serif;font-weight:700;font-size:1.3rem;color:var(--navy-deep);}
+header.topbar h1{color:#fff;margin:0;font-size:1.15rem;}
+header.topbar p{margin:2px 0 0;font-size:.8rem;color:#cfe0ee;}
+.toolbar{display:flex;gap:8px;align-items:center;}
+.icon-btn{
+  background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.3); color:#fff;
+  border-radius:8px; padding:7px 10px; cursor:pointer; font-size:.85rem; display:flex; align-items:center; gap:6px;
+}
+.icon-btn:hover{background:rgba(255,255,255,.22);}
+nav.tabs{display:flex; gap:6px; flex-wrap:wrap; margin-bottom:16px; border-bottom:2px solid var(--line); padding-bottom:0;}
+nav.tabs button{
+  background:transparent; border:none; padding:10px 16px; font-size:.92rem; cursor:pointer;
+  color:var(--ink-soft); border-bottom:3px solid transparent; font-weight:600; font-family:inherit;
+  transition:color .15s, border-color .15s;
+}
+nav.tabs button:hover{color:var(--navy);}
+nav.tabs button.active{color:var(--navy-deep); border-bottom-color:var(--amber);}
+.panel{display:none; animation:fade .25s ease;}
+.panel.active{display:block;}
+@keyframes fade{from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:translateY(0);}}
+.card{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:16px 18px; box-shadow:var(--shadow); margin-bottom:14px; overflow-x:auto;}
+.grid{display:grid; gap:12px;}
+.grid-2{grid-template-columns:1fr 1fr;} .grid-3{grid-template-columns:repeat(3,1fr);} .grid-4{grid-template-columns:repeat(4,1fr);}
+@media(max-width:800px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr;}}
+.subbab-card{cursor:pointer; border-left:4px solid var(--teal); transition:transform .12s, box-shadow .12s;}
+.subbab-card:hover{transform:translateY(-2px); box-shadow:0 6px 16px rgba(28,36,48,.12);}
+.subbab-card .tag{display:inline-block; font-size:.72rem; background:var(--amber-soft); color:#7a5417; padding:2px 8px; border-radius:20px; margin-bottom:6px;}
+.btn{
+  background:var(--navy); color:#fff; border:none; padding:9px 16px; border-radius:8px; cursor:pointer;
+  font-size:.9rem; font-weight:600; font-family:inherit;
+}
+.btn:hover{background:var(--navy-deep);}
+.btn.secondary{background:#fff; color:var(--navy); border:1px solid var(--navy);}
+.btn.secondary:hover{background:#eef3f8;}
+.btn.amber{background:var(--amber); color:#382608;}
+.btn.amber:hover{background:#b06f22;}
+.btn:disabled{opacity:.45; cursor:not-allowed;}
+.btn-row{display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;}
+.hidden{display:none !important;}
+.example-box{background:#f2f6fa; border:1px solid #d7e3ee; border-radius:8px; padding:10px 14px; margin:10px 0;}
+.tip-box{background:#eef7f0; border-left:4px solid var(--ok); padding:10px 14px; border-radius:6px; margin:10px 0;}
+.warn-box{background:#fbeeec; border-left:4px solid var(--danger); padding:10px 14px; border-radius:6px; margin:10px 0;}
+.summary-box{background:#f0efe8; border:1px dashed #c9c4b3; padding:10px 14px; border-radius:6px; margin:10px 0;}
+.progress-bar{height:8px; background:var(--line); border-radius:6px; overflow:hidden; margin:8px 0;}
+.progress-bar > div{height:100%; background:var(--teal); width:0%; transition:width .3s;}
+label{font-size:.85rem; font-weight:600; color:var(--ink-soft); display:block; margin-bottom:3px;}
+input[type=number], select, input[type=text]{
+  width:100%; padding:7px 9px; border:1px solid var(--line); border-radius:6px; font-size:.92rem; font-family:inherit;
+}
+.param-row{display:flex; gap:8px; align-items:end; flex-wrap:wrap;}
+.param-row > div{flex:1; min-width:90px;}
+canvas{background:#fff; border:1px solid var(--line); border-radius:8px; max-width:100%;}
+.constraint-row{display:grid; grid-template-columns:auto 70px 70px 90px 70px auto; gap:6px; align-items:center; margin-bottom:6px;}
+@media(max-width:700px){.constraint-row{grid-template-columns:1fr 1fr 1fr; font-size:.8rem;}}
+.badge{display:inline-block; padding:2px 9px; border-radius:20px; font-size:.75rem; font-weight:700;}
+.badge.ok{background:#e4f4e8; color:var(--ok);}
+.badge.bad{background:#fbe6e4; color:var(--danger);}
+.badge.warn{background:var(--amber-soft); color:#7a5417;}
+.qnav{display:flex; flex-wrap:wrap; gap:6px; margin:10px 0;}
+.qnav button{width:34px; height:34px; border-radius:6px; border:1px solid var(--line); background:#fff; cursor:pointer; font-size:.8rem;}
+.qnav button.current{border-color:var(--navy); border-width:2px;}
+.qnav button.answered{background:#e4f4e8; border-color:var(--ok);}
+.qnav button.flagged{background:var(--amber-soft); border-color:var(--amber);}
+.option{display:flex; gap:8px; align-items:flex-start; padding:8px 10px; border:1px solid var(--line); border-radius:8px; margin-bottom:7px; cursor:pointer;}
+.option:hover{background:#f5f7f9;}
+.option.selected{border-color:var(--navy); background:#eaf1f7;}
+.option.correct{border-color:var(--ok); background:#e4f4e8;}
+.option.incorrect{border-color:var(--danger); background:#fbe6e4;}
+.timer-pill{background:var(--navy-deep); color:#fff; padding:6px 14px; border-radius:20px; font-weight:700; font-variant-numeric:tabular-nums;}
+.timer-pill.low{background:var(--danger); animation:pulse 1s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.6;}}
+.modal-overlay{position:fixed; inset:0; background:rgba(20,25,35,.5); display:flex; align-items:center; justify-content:center; z-index:50; padding:16px;}
+.modal-box{background:#fff; border-radius:12px; max-width:520px; width:100%; padding:22px; box-shadow:0 12px 40px rgba(0,0,0,.25);}
+footer.appfoot{text-align:center; color:var(--ink-soft); font-size:.8rem; margin-top:30px;}
+/* ---------- LOGIN SCREEN ---------- */
+#loginScreen{
+  position:fixed; inset:0; z-index:200; background:
+    radial-gradient(circle at 20% 15%, rgba(200,128,43,.25), transparent 45%),
+    linear-gradient(135deg, var(--navy) 0%, var(--navy-deep) 65%);
+  display:flex; align-items:center; justify-content:center; padding:20px; overflow-y:auto;
+}
+#loginScreen.hidden{display:none;}
+.login-card{background:#fff; border-radius:16px; padding:30px 28px; max-width:440px; width:100%; box-shadow:0 20px 60px rgba(0,0,0,.35);}
+.login-card .mark{width:52px;height:52px;border-radius:12px;background:var(--amber);display:flex;align-items:center;justify-content:center;font-family:Georgia,serif;font-weight:700;font-size:1.6rem;color:var(--navy-deep);margin:0 auto 10px;}
+.login-card h2{text-align:center; margin:0 0 4px;}
+.login-card p.lead{text-align:center; color:var(--ink-soft); font-size:.88rem; margin:0 0 18px;}
+.field-group{margin-bottom:14px;}
+.field-group input, .field-group input[readonly]{width:100%; padding:9px 10px; border:1px solid var(--line); border-radius:8px; font-size:.94rem; font-family:inherit;}
+.field-group input[readonly]{background:#f2f1ec; color:var(--ink-soft); font-variant-numeric:tabular-nums;}
+.field-group input.invalid{border-color:var(--danger); background:#fdf3f2;}
+.field-group input.valid{border-color:var(--ok);}
+.field-error{color:var(--danger); font-size:.78rem; margin-top:3px; min-height:1em; display:block;}
+.app.hidden{display:none;}
+/* ---------- RESPONSIVE & UTILITAS TAMBAHAN ---------- */
+.table-wrap{overflow-x:auto; -webkit-overflow-scrolling:touch; margin-bottom:10px;}
+canvas{width:100%; height:auto; max-width:520px; display:block;}
+.result-modal-box{max-width:420px;}
+.status-line{display:flex; align-items:center; gap:8px; font-size:.85rem; margin-top:8px;}
+.dot{width:9px;height:9px;border-radius:50%;display:inline-block;}
+.dot.sending{background:var(--amber); animation:pulse 1s infinite;}
+.dot.sent{background:var(--ok);} .dot.failed{background:var(--danger);}
+@media(max-width:640px){
+  header.topbar{padding:14px 14px; border-radius:0 0 12px 12px;}
+  header.topbar h1{font-size:1rem;}
+  header.topbar p{font-size:.72rem;}
+  nav.tabs{gap:2px;}
+  nav.tabs button{padding:8px 10px; font-size:.8rem;}
+  .card{padding:12px 13px;}
+  h1{font-size:1.2rem;} h2{font-size:1.08rem;} h3{font-size:1rem;}
+  .login-card{padding:22px 18px;}
+  .constraint-row{font-size:.76rem; gap:4px;}
+  .qnav button{width:30px; height:30px; font-size:.72rem;}
+  .modal-box{padding:16px; max-width:94vw;}
+  .dev-photo{width:110px; height:110px;}
+}
+@media(min-width:1000px){
+  .app{padding:0 24px 60px;}
+}
+
+.stepper-track{display:flex; gap:4px; margin-bottom:14px;}
+.stepper-track div{flex:1; height:6px; background:var(--line); border-radius:4px;}
+.stepper-track div.done{background:var(--teal);}
+.stepper-track div.now{background:var(--amber);}
+.feedback-flash{position:fixed; top:16px; right:16px; padding:10px 16px; border-radius:8px; color:#fff; font-weight:600; z-index:100; box-shadow:var(--shadow); opacity:0; transform:translateY(-8px); transition:all .25s;}
+.feedback-flash.show{opacity:1; transform:translateY(0);}
+.feedback-flash.good{background:var(--ok);} .feedback-flash.bad{background:var(--danger);}
+.dev-photo{width:150px;height:150px;border-radius:50%;background:#dfe6ee;display:flex;align-items:center;justify-content:center;color:var(--ink-soft);font-size:.75rem;text-align:center;border:3px solid var(--amber-soft);}
+table.sub-table{width:100%; min-width:420px; border-collapse:collapse; font-size:.88rem;}
+table.sub-table th,table.sub-table td{border:1px solid var(--line); padding:6px 8px; text-align:left;}
+table.sub-table th{background:#f0efe8;}
+.checklist label{display:flex; gap:8px; align-items:center; font-weight:400; color:var(--ink); margin-bottom:4px; cursor:pointer;}
+.small{font-size:.82rem; color:var(--ink-soft);}
+::selection{background:var(--amber-soft);}
+/* Cadangan: pastikan anotasi MathML KaTeX tetap tersembunyi secara visual
+   walau stylesheet katex.min.css dari CDN gagal dimuat, agar rumus tidak
+   tampil dobel (mis. "x+y≤2x+y≤2"). Aturan ini meniru CSS resmi KaTeX. */
+.katex .katex-mathml{
+  position:absolute !important; clip:rect(1px,1px,1px,1px) !important; clip-path:inset(50%) !important;
+  padding:0 !important; border:0 !important; height:1px !important; width:1px !important;
+  overflow:hidden !important; white-space:nowrap !important;
+}
+</style>
+</head>
+<body>
+
+<div class="feedback-flash" id="flashMsg"></div>
+
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="mark">Σ</div>
+    <h2>Masuk ke Lab Maya SPtLDV</h2>
+    <p class="lead">Isi data berikut dengan benar sebelum memulai pembelajaran.</p>
+    <form id="loginForm" novalidate>
+      <div class="field-group">
+        <label for="loginWaktu">Tanggal &amp; Jam</label>
+        <input type="text" id="loginWaktu" readonly>
+      </div>
+      <div class="field-group">
+        <label for="loginNama">Nama Lengkap</label>
+        <input type="text" id="loginNama" placeholder="Contoh: Andi Saputra" autocomplete="off">
+        <span class="field-error" id="errNama"></span>
+      </div>
+      <div class="field-group">
+        <label for="loginKelas">Kelas</label>
+        <input type="text" id="loginKelas" placeholder="Contoh: X-2 / X IPA 1" autocomplete="off">
+        <span class="field-error" id="errKelas"></span>
+      </div>
+      <div class="field-group">
+        <label for="loginBidang">Bidang Studi</label>
+        <input type="text" id="loginBidang" placeholder="Contoh: Matematika" autocomplete="off">
+        <span class="field-error" id="errBidang"></span>
+      </div>
+      <div class="btn-row" style="justify-content:center;">
+        <button type="submit" class="btn" id="btnLogin" style="width:100%;">Masuk ke Lab Maya</button>
+      </div>
+    </form>
+    <p class="small" style="text-align:center; margin-top:10px;">Nomor peserta diberikan otomatis. Hasil Latihan/Ujian akan dicatat untuk keperluan rekap nilai guru — lihat kebijakan privasi pada tab Pengembang.</p>
+  </div>
+</div>
+
+<div class="app hidden" id="appRoot">
+  <header class="topbar">
+    <div class="brand">
+      <div class="mark">Σ</div>
+      <div>
+        <h1>Lab Maya SPtLDV</h1>
+        <p>Sistem Pertidaksamaan Linear Dua Variabel — Matematika Fase E / Kelas X</p>
+      </div>
+    </div>
+    <div class="toolbar">
+      <button class="icon-btn" id="soundToggle" onclick="toggleSound()">🔊 Suara: Aktif</button>
+    </div>
+  </header>
+
+  <nav class="tabs" id="tabNav">
+    <button class="tab-btn active" data-tab="teori">1. Teori</button>
+    <button class="tab-btn" data-tab="prosedur">2. Prosedur</button>
+    <button class="tab-btn" data-tab="simulasi">3. Simulasi</button>
+    <button class="tab-btn" data-tab="latihan">4. Latihan TKA</button>
+    <button class="tab-btn" data-tab="ujian">5. Ujian</button>
+    <button class="tab-btn" data-tab="pengembang">6. Pengembang</button>
+  </nav>
+
+  <!-- ================= TAB TEORI ================= -->
+  <section class="panel active" id="panel-teori">
+    <div class="card">
+      <h2>Materi Teori</h2>
+      <p class="small">Klik salah satu kartu subbab untuk membuka penjelasan lengkap, contoh soal, dan ringkasan.</p>
+    </div>
+    <div class="grid grid-3" id="teoriGrid"></div>
+    <div id="teoriDetail"></div>
+  </section>
+
+  <!-- ================= TAB PROSEDUR ================= -->
+  <section class="panel" id="panel-prosedur">
+    <div class="card">
+      <h2>Panduan Prosedural</h2>
+      <p class="small">Pilih salah satu prosedur, lalu ikuti langkah demi langkah menggunakan tombol navigasi.</p>
+      <div class="grid grid-4" id="prosedurPicker"></div>
+    </div>
+    <div class="card" id="prosedurStage"></div>
+  </section>
+
+  <!-- ================= TAB SIMULASI ================= -->
+  <section class="panel" id="panel-simulasi">
+    <div class="card">
+      <h2>Simulasi Interaktif</h2>
+      <div class="grid grid-4" id="simPicker"></div>
+    </div>
+    <div id="simStage"></div>
+  </section>
+
+  <!-- ================= TAB LATIHAN ================= -->
+  <section class="panel" id="panel-latihan">
+    <div id="latihanStage"></div>
+  </section>
+
+  <!-- ================= TAB UJIAN ================= -->
+  <section class="panel" id="panel-ujian">
+    <div id="ujianStage"></div>
+  </section>
+
+  <!-- ================= TAB PENGEMBANG ================= -->
+  <section class="panel" id="panel-pengembang">
+    <div class="card" style="display:flex; gap:22px; flex-wrap:wrap; align-items:flex-start;">
+      <div class="dev-photo">[Foto<br>Pengembang]</div>
+      <div style="flex:1; min-width:240px;">
+        <h2>[Nama Pengembang]</h2>
+        <p class="small">[Jabatan / Program Studi] — [Institusi / Satuan Pendidikan]</p>
+        <p>[Tuliskan profil singkat pengembang di sini: latar belakang, minat pada pendidikan matematika, dan pengalaman mengajar atau riset yang relevan.]</p>
+        <p class="small">Kontak: [email@instansi.sch.id] · [Nomor telepon/WA opsional]</p>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Tujuan Pengembangan</h3>
+      <p>Lab Maya ini dikembangkan untuk membantu siswa kelas X memahami konsep Sistem Pertidaksamaan Linear Dua Variabel (SPtLDV) secara visual dan interaktif, sesuai capaian pembelajaran Fase E Kurikulum Merdeka, sehingga siswa dapat berlatih secara mandiri sebelum dan sesudah pembelajaran di kelas.</p>
+    </div>
+    <div class="card">
+      <h3>Deskripsi Media Pembelajaran</h3>
+      <p>Aplikasi ini memuat enam menu utama: Teori, Prosedur, Simulasi, Latihan bergaya TKA, Ujian mandiri dengan waktu, dan profil Pengembang. Setiap menu dirancang agar siswa dapat membangun pemahaman konsep secara bertahap: dari definisi, prosedur pengerjaan, eksplorasi visual, latihan soal, hingga evaluasi akhir.</p>
+    </div>
+    <div class="card">
+      <h3>Petunjuk Penggunaan</h3>
+      <ol>
+        <li>Mulai dari tab <strong>Teori</strong> untuk mempelajari konsep setiap subbab secara berurutan.</li>
+        <li>Buka tab <strong>Prosedur</strong> untuk memahami langkah pengerjaan tiap jenis soal.</li>
+        <li>Gunakan tab <strong>Simulasi</strong> untuk bereksperimen mengubah parameter dan mengamati perubahan grafik secara langsung.</li>
+        <li>Kerjakan tab <strong>Latihan TKA</strong> untuk berlatih 50 soal acak beserta pembahasan.</li>
+        <li>Uji pemahaman melalui tab <strong>Ujian</strong> (25 soal, 60 menit).</li>
+      </ol>
+    </div>
+    <div class="card">
+      <h3>Teknologi yang Digunakan</h3>
+      <p>HTML5, CSS3, JavaScript (vanilla), elemen <code>&lt;canvas&gt;</code> untuk visualisasi koordinat Kartesius, KaTeX untuk penulisan notasi matematika, serta Google Apps Script sebagai backend pencatatan nilai ke Google Sheets.</p>
+    </div>
+    <div class="card">
+      <h3>Tentang Sistem Pencatatan Nilai</h3>
+      <p>Aplikasi ini dilengkapi sistem pencatatan otomatis. Setiap kali seorang siswa masuk, sistem memberikan <strong>nomor peserta</strong> berurutan yang disimpan pada penyimpanan lokal (<em>localStorage</em>) perangkat yang digunakan. Setiap sesi Latihan TKA maupun Ujian yang diselesaikan akan menampilkan ringkasan (skor, durasi, dan level kompetensi), lalu data sesi tersebut (nomor peserta, nama, kelas, bidang studi, waktu mulai/selesai, durasi, skor, dan rincian log jawaban) dikirim secara otomatis ke lembar Google Sheets milik guru/pengembang melalui Google Apps Script.</p>
+      <p class="small">Lembar rekap: <a href="${'#'}" onclick="window.open('https://docs.google.com/spreadsheets/d/1n7rwvRQ4TOUr5hqBpWBDw6VCzCOF4zBwiE112kfij9U/edit?usp=sharing','_blank'); return false;">Google Sheets Rekap Nilai SPtLDV</a> (akses terbatas untuk guru/pengembang).</p>
+    </div>
+    <div class="card">
+      <h3>Privasi Data</h3>
+      <ul>
+        <li>Data yang dikumpulkan: nama, kelas, bidang studi, nomor peserta, waktu pengerjaan, skor, dan detail jawaban pada Latihan/Ujian.</li>
+        <li>Data digunakan semata-mata untuk keperluan rekap nilai dan evaluasi pembelajaran oleh guru/pengembang, bukan untuk tujuan komersial dan tidak dibagikan ke pihak ketiga di luar keperluan tersebut.</li>
+        <li>Nomor peserta disimpan secara lokal di perangkat/browser yang digunakan (localStorage) dan tidak dikirim ke pihak lain selain lembar Google Sheets yang dikelola guru/pengembang.</li>
+        <li>Jika koneksi internet tidak tersedia saat pengiriman, data disimpan sementara di perangkat dan akan dicoba dikirim ulang secara otomatis pada kesempatan berikutnya.</li>
+        <li>Siswa atau orang tua/wali yang ingin memeriksa, mengoreksi, atau meminta penghapusan data dapat menghubungi pengembang melalui kontak pada bagian profil di atas.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Penutup</h3>
+      <p>Semoga Lab Maya ini membantu perjalanan belajarmu memahami matematika, khususnya SPtLDV, dengan lebih menyenangkan. Matematika bukan tentang menghafal rumus, tetapi tentang memahami pola dan bernalar — teruslah berlatih!</p>
+    </div>
+  </section>
+
+  <footer class="appfoot">Lab Maya SPtLDV · Kurikulum Merdeka · Fase E / Kelas X · Dibangun dengan HTML, CSS &amp; JavaScript</footer>
+</div>
+
+<script>
+/* ============================================================
+   AUDIO (efek suara sederhana menggunakan WebAudio, tanpa file eksternal)
+   ============================================================ */
+let soundOn = true;
+const audioCtx = (window.AudioContext || window.webkitAudioContext) ? new (window.AudioContext || window.webkitAudioContext)() : null;
+function beep(freq, dur, type='sine', vol=0.15){
+  if(!soundOn || !audioCtx) return;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = type; osc.frequency.value = freq;
+  gain.gain.value = vol;
+  osc.connect(gain); gain.connect(audioCtx.destination);
+  osc.start();
+  gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + dur);
+  osc.stop(audioCtx.currentTime + dur);
+}
+function sfxCorrect(){ beep(660,.12); setTimeout(()=>beep(880,.15),110); }
+function sfxWrong(){ beep(180,.25,'sawtooth',0.12); }
+function sfxSuccess(){ beep(523,.1); setTimeout(()=>beep(659,.1),100); setTimeout(()=>beep(784,.2),200); }
+function sfxFinish(){ beep(392,.15); setTimeout(()=>beep(523,.15),150); setTimeout(()=>beep(659,.15),300); setTimeout(()=>beep(784,.3),450); }
+function toggleSound(){
+  soundOn = !soundOn;
+  document.getElementById('soundToggle').textContent = soundOn ? '🔊 Suara: Aktif' : '🔇 Suara: Nonaktif';
+  if(soundOn) beep(440,.08);
+}
+function flash(msg, good){
+  const el = document.getElementById('flashMsg');
+  el.textContent = msg;
+  el.className = 'feedback-flash show ' + (good?'good':'bad');
+  setTimeout(()=>{ el.classList.remove('show'); }, 1600);
+}
+
+/* ============================================================
+   SISTEM LOGIN
+   ============================================================ */
+const bulanNama = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+const hariNama = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+function formatWaktuSekarang(){
+  const d = new Date();
+  const tgl = `${hariNama[d.getDay()]}, ${d.getDate()} ${bulanNama[d.getMonth()]} ${d.getFullYear()}`;
+  const jam = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}:${String(d.getSeconds()).padStart(2,'0')}`;
+  return `${tgl} — ${jam} WIB`;
+}
+function updateLoginClock(){
+  const el = document.getElementById('loginWaktu');
+  if(el && !window.loginBerhasil) el.value = formatWaktuSekarang();
+}
+setInterval(updateLoginClock, 1000);
+updateLoginClock();
+
+const loginRules = {
+  nama:{ regex:/^[A-Za-zÀ-ÿ' .-]{3,60}$/, pesan:'Nama minimal 3 huruf, hanya boleh berisi huruf, spasi, tanda kutip, titik, atau tanda hubung.' },
+  kelas:{ regex:/^(?=.*[A-Za-z0-9]).{1,30}$/, pesan:'Kelas wajib diisi (maks. 30 karakter) dan harus mengandung minimal satu huruf/angka.' },
+  bidang:{ regex:/^[A-Za-z' .-]{3,50}$/, pesan:'Bidang studi minimal 3 huruf, hanya boleh berisi huruf, spasi, titik, atau tanda hubung.' }
+};
+function validateLoginField(inputId, errId, ruleKey){
+  const input = document.getElementById(inputId);
+  const errEl = document.getElementById(errId);
+  const val = input.value.trim();
+  const rule = loginRules[ruleKey];
+  const ok = rule.regex.test(val);
+  input.classList.remove('valid','invalid');
+  if(val.length===0){ errEl.textContent=''; }
+  else if(!ok){ input.classList.add('invalid'); errEl.textContent = rule.pesan; }
+  else { input.classList.add('valid'); errEl.textContent=''; }
+  return ok;
+}
+['loginNama','loginKelas','loginBidang'].forEach((id,i)=>{
+  const errIds = ['errNama','errKelas','errBidang'];
+  const keys = ['nama','kelas','bidang'];
+  document.getElementById(id).addEventListener('input', ()=>validateLoginField(id, errIds[i], keys[i]));
+});
+window.loginBerhasil = false;
+window.dataLogin = null;
+document.getElementById('loginForm').addEventListener('submit', function(e){
+  e.preventDefault();
+  const okNama = validateLoginField('loginNama','errNama','nama');
+  const okKelas = validateLoginField('loginKelas','errKelas','kelas');
+  const okBidang = validateLoginField('loginBidang','errBidang','bidang');
+  if(document.getElementById('loginNama').value.trim()===''){ document.getElementById('errNama').textContent='Nama wajib diisi.'; document.getElementById('loginNama').classList.add('invalid'); }
+  if(document.getElementById('loginKelas').value.trim()===''){ document.getElementById('errKelas').textContent='Kelas wajib diisi.'; document.getElementById('loginKelas').classList.add('invalid'); }
+  if(document.getElementById('loginBidang').value.trim()===''){ document.getElementById('errBidang').textContent='Bidang studi wajib diisi.'; document.getElementById('loginBidang').classList.add('invalid'); }
+  if(!(okNama && okKelas && okBidang)) { return; }
+  window.dataLogin = {
+    nomorPeserta: getNomorPesertaBaru(),
+    waktu: document.getElementById('loginWaktu').value,
+    nama: document.getElementById('loginNama').value.trim(),
+    kelas: document.getElementById('loginKelas').value.trim(),
+    bidang: document.getElementById('loginBidang').value.trim()
+  };
+  window.loginBerhasil = true;
+  document.getElementById('loginScreen').classList.add('hidden');
+  document.getElementById('appRoot').classList.remove('hidden');
+  const p = document.querySelector('header.topbar .brand p');
+  if(p) p.textContent = `Peserta #${window.dataLogin.nomorPeserta} · ${window.dataLogin.nama} · Kelas ${window.dataLogin.kelas} · ${window.dataLogin.bidang}`;
+  cobaKirimUlangDataTertunda();
+});
+
+/* ============================================================
+   KONFIGURASI & PENGIRIMAN DATA KE GOOGLE SHEETS
+   ============================================================ */
+const CONFIG = {
+  // GANTI URL DI BAWAH dengan URL Web App hasil deploy Google Apps Script Anda sendiri.
+  // Lihat kode Apps Script terlampir (Code.gs) dan panduan deploy di tab "Pengembang".
+  GOOGLE_SCRIPT_URL: 'GANTI_DENGAN_URL_WEB_APP_APPS_SCRIPT_ANDA',
+  SHEET_LINK: 'https://docs.google.com/spreadsheets/d/1n7rwvRQ4TOUr5hqBpWBDw6VCzCOF4zBwiE112kfij9U/edit?usp=sharing',
+  PENDING_KEY: 'sptldv_pending_uploads',
+  COUNTER_KEY: 'sptldv_participant_counter'
+};
+
+function getNomorPesertaBaru(){
+  let n = parseInt(localStorage.getItem(CONFIG.COUNTER_KEY) || '0', 10);
+  if(isNaN(n)) n = 0;
+  n += 1;
+  try{ localStorage.setItem(CONFIG.COUNTER_KEY, String(n)); }catch(e){ /* localStorage tidak tersedia */ }
+  return n;
+}
+function levelKompetensi(score){
+  if(score>=90) return 'Sangat Baik';
+  if(score>=75) return 'Baik';
+  if(score>=60) return 'Cukup';
+  return 'Perlu Bimbingan';
+}
+function buildLogJawaban(bank){
+  return bank.map((q,i)=>{
+    let jawabanSiswa, kunci;
+    if(q.type==='single'){
+      jawabanSiswa = q.options.find(o=>o.id===q.userAnswer)?.text || '(tidak dijawab)';
+      kunci = q.options.find(o=>o.id===q.correct).text;
+    } else if(q.type==='multi'){
+      jawabanSiswa = (q.userAnswer||[]).map(id=>q.options.find(o=>o.id===id)?.text).join(' | ') || '(tidak dijawab)';
+      kunci = q.correct.map(id=>q.options.find(o=>o.id===id).text).join(' | ');
+    } else if(q.type==='kategori'){
+      jawabanSiswa = q.statements.map(s=>`${s.text}=${q.categories[q.userMap[s.id]] ?? '-'}`).join(' | ');
+      kunci = q.statements.map(s=>`${s.text}=${q.categories[q.correctMap[s.id]]}`).join(' | ');
+    }
+    return { no:i+1, subbab:SUBBAB_NAMA[q.subbab], tipe:q.type, soal:(q.prompt||'').replace(/\$/g,'').slice(0,140), jawabanSiswa, kunciJawaban:kunci, benar:isCorrect(q) };
+  });
+}
+async function kirimDataSesi(payload){
+  showStatusKirim('sending', 'Mengirim data ke Google Sheets...');
+  try{
+    if(!CONFIG.GOOGLE_SCRIPT_URL || CONFIG.GOOGLE_SCRIPT_URL.indexOf('GANTI_DENGAN')===0){
+      throw new Error('URL Google Apps Script Web App belum dikonfigurasi.');
+    }
+    const res = await fetch(CONFIG.GOOGLE_SCRIPT_URL, {
+      method:'POST',
+      headers:{ 'Content-Type':'text/plain;charset=utf-8' }, // hindari CORS preflight pada Apps Script
+      body: JSON.stringify(payload)
+    });
+    let ok = res && (res.ok || res.type==='opaque');
+    showStatusKirim(ok?'sent':'failed', ok?'Data berhasil dikirim ke Google Sheets.':'Pengiriman gagal (respons server bermasalah).');
+    if(!ok) simpanCadanganLokal(payload);
+    return { ok };
+  }catch(err){
+    console.error('Gagal mengirim data sesi ke Google Sheets:', err);
+    showStatusKirim('failed', 'Gagal mengirim data (periksa koneksi atau konfigurasi URL Apps Script). Data disimpan sementara di perangkat.');
+    simpanCadanganLokal(payload);
+    return { ok:false, error:err.message };
+  }
+}
+function simpanCadanganLokal(payload){
+  try{
+    const arr = JSON.parse(localStorage.getItem(CONFIG.PENDING_KEY) || '[]');
+    arr.push(payload);
+    localStorage.setItem(CONFIG.PENDING_KEY, JSON.stringify(arr));
+  }catch(e){ console.error('Gagal menyimpan cadangan lokal:', e); }
+}
+async function cobaKirimUlangDataTertunda(){
+  let arr = [];
+  try{ arr = JSON.parse(localStorage.getItem(CONFIG.PENDING_KEY) || '[]'); }catch(e){ arr=[]; }
+  if(!arr.length || !CONFIG.GOOGLE_SCRIPT_URL || CONFIG.GOOGLE_SCRIPT_URL.indexOf('GANTI_DENGAN')===0) return;
+  const sisa = [];
+  for(const item of arr){
+    try{
+      await fetch(CONFIG.GOOGLE_SCRIPT_URL, { method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body: JSON.stringify(item) });
+    }catch(e){ sisa.push(item); }
+  }
+  localStorage.setItem(CONFIG.PENDING_KEY, JSON.stringify(sisa));
+}
+function showStatusKirim(state, msg){
+  const el = document.getElementById('statusKirim');
+  if(!el) return;
+  el.innerHTML = `<span class="dot ${state}"></span> ${msg}`;
+}
+
+/* Modal ringkasan hasil (skor, durasi, level kompetensi) + pengiriman ke Google Sheets */
+function tampilkanModalRingkasan(jenisSesi, info){
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.id = 'modalRingkasan';
+  overlay.innerHTML = `
+    <div class="modal-box result-modal-box">
+      <h3>Ringkasan Hasil ${jenisSesi}</h3>
+      <table class="sub-table">
+        <tr><td>Peserta</td><td>#${window.dataLogin?.nomorPeserta ?? '-'} — ${window.dataLogin?.nama ?? '-'}</td></tr>
+        <tr><td>Skor</td><td><strong>${info.skor} / 100</strong></td></tr>
+        <tr><td>Durasi Pengerjaan</td><td>${info.durasiText}</td></tr>
+        <tr><td>Level Kompetensi</td><td><span class="badge ${info.skor>=75?'ok':info.skor>=60?'warn':'bad'}">${info.level}</span></td></tr>
+      </table>
+      <div id="statusKirim" class="status-line"><span class="dot sending"></span> Menyiapkan pengiriman data...</div>
+      <div class="btn-row"><button class="btn" onclick="document.getElementById('modalRingkasan').remove()">Tutup</button></div>
+    </div>`;
+  document.body.appendChild(overlay);
+  kirimDataSesi(info.payload);
+}
+function hitungDurasiText(detik){
+  const m = Math.floor(detik/60), s = detik%60;
+  return `${m} menit ${s} detik`;
+}
+
+/* ============================================================
+   NAVIGASI TAB
+   ============================================================ */
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('panel-'+btn.dataset.tab).classList.add('active');
+    renderMath();
+    window.scrollTo({top:0, behavior:'smooth'});
+  });
+});
+function renderMath(){
+  if(window.renderMathInElement){
+    renderMathInElement(document.body, {
+      delimiters:[
+        {left:"$$", right:"$$", display:true},
+        {left:"$", right:"$", display:false}
+      ]
+    });
+  }
+}
+
+/* ============================================================
+   UTILITAS UMUM
+   ============================================================ */
+function randInt(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
+function pick(arr){ return arr[randInt(0,arr.length-1)]; }
+function shuffle(arr){ const a=arr.slice(); for(let i=a.length-1;i>0;i--){ const j=randInt(0,i); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function fmtNum(n){ return (Math.abs(n-Math.round(n))<1e-9) ? Math.round(n) : n.toFixed(2); }
+function fmtSign(sym){ return {'<=':'\\le','>=':'\\ge','<':'<','>':'>'}[sym]; }
+function symText(sym){ return {'<=':'≤','>=':'≥','<':'<','>':'>'}[sym]; }
+function gcd(a,b){ a=Math.abs(a); b=Math.abs(b); while(b){ [a,b]=[b,a%b]; } return a||1; }
+
+/* ============================================================
+   DATA TEORI (8 SUBBAB)
+   ============================================================ */
+const teoriData = [
+{
+  id:1, judul:"Konsep Dasar Pertidaksamaan Linear Dua Variabel",
+  tujuan:"Siswa dapat menjelaskan pengertian, bentuk umum, dan simbol pertidaksamaan linear dua variabel serta membedakannya dari persamaan linear dua variabel.",
+  penjelasan:`
+    <p><strong>Pertidaksamaan Linear Dua Variabel (PtLDV)</strong> adalah kalimat matematika terbuka yang memuat tanda ketidaksamaan ($<,\\;>,\\;\\le,\\;\\ge$) dengan dua variabel berpangkat satu.</p>
+    <p>Bentuk umum PtLDV adalah:</p>
+    <div class="example-box">$$ax + by \\; \\square \\; c$$
+    <p class="small">dengan $a, b, c \\in \\mathbb{R}$, $a$ dan $b$ tidak keduanya nol, $x$ dan $y$ variabel, dan $\\square$ mewakili salah satu simbol $<, >, \\le, \\ge$.</p></div>
+    <p><strong>Perbedaan dengan persamaan linear dua variabel:</strong> persamaan menggunakan tanda "=" dan penyelesaiannya berupa garis (himpunan titik), sedangkan pertidaksamaan menggunakan tanda ketidaksamaan dan penyelesaiannya berupa <em>daerah</em> (himpunan titik yang lebih luas) pada bidang Kartesius.</p>
+    <table class="sub-table"><tr><th>Simbol</th><th>Dibaca</th><th>Jenis garis batas</th></tr>
+    <tr><td>$<$</td><td>kurang dari</td><td>putus-putus (tegas, tidak termasuk)</td></tr>
+    <tr><td>$>$</td><td>lebih dari</td><td>putus-putus (tegas, tidak termasuk)</td></tr>
+    <tr><td>$\\le$</td><td>kurang dari atau sama dengan</td><td>penuh (tidak tegas, termasuk)</td></tr>
+    <tr><td>$\\ge$</td><td>lebih dari atau sama dengan</td><td>penuh (tidak tegas, termasuk)</td></tr></table>`,
+  contoh:[
+    {soal:"Tentukan apakah $3x - 2y \\le 8$ merupakan PtLDV, dan sebutkan alasannya.",
+     bahasan:"Bentuk ini memuat dua variabel ($x$ dan $y$), masing-masing berpangkat satu, dan menggunakan tanda $\\le$. Maka $3x-2y\\le 8$ adalah PtLDV dengan $a=3, b=-2, c=8$."},
+    {soal:"Apakah $x^2 + y > 4$ termasuk PtLDV? Jelaskan.",
+     bahasan:"Bukan PtLDV, karena variabel $x$ berpangkat dua (tidak linear). PtLDV mensyaratkan setiap variabel berpangkat satu."}
+  ],
+  tips:"Ingat tiga syarat PtLDV: (1) ada dua variabel berbeda, (2) setiap variabel berpangkat satu, (3) memuat tanda $<,>,\\le,$ atau $\\ge$ — bukan tanda sama dengan.",
+  kesalahan:"Siswa sering menganggap bentuk dengan tanda \"=\" sebagai pertidaksamaan, atau lupa memeriksa pangkat variabel sehingga bentuk kuadrat dianggap linear.",
+  ringkasan:"PtLDV berbentuk $ax+by \\square c$ dengan simbol $<,>,\\le,\\ge$; berbeda dari persamaan yang memakai \"=\"; penyelesaiannya berupa daerah, bukan garis.",
+  refleksi:"Bisakah kamu membuat satu contoh PtLDV dan satu contoh bentuk yang bukan PtLDV dari kehidupan sehari-hari, misalnya tentang uang saku atau berat barang?"
+},
+{
+  id:2, judul:"Grafik Pertidaksamaan Linear Dua Variabel",
+  tujuan:"Siswa dapat menggambar garis batas, menentukan jenis garis, dan menentukan daerah penyelesaian suatu PtLDV menggunakan titik uji.",
+  penjelasan:`
+    <p>Untuk menggambar grafik $ax+by \\square c$, langkah pertama adalah mengubahnya menjadi <strong>persamaan garis batas</strong> $ax+by=c$.</p>
+    <div class="example-box">Titik potong sumbu X: substitusi $y=0 \\Rightarrow x = \\dfrac{c}{a}$<br>
+    Titik potong sumbu Y: substitusi $x=0 \\Rightarrow y = \\dfrac{c}{b}$</div>
+    <p>Garis batas digambar <strong>penuh</strong> jika simbolnya $\\le$ atau $\\ge$ (titik pada garis termasuk penyelesaian), dan <strong>putus-putus</strong> jika simbolnya $<$ atau $>$ (titik pada garis tidak termasuk).</p>
+    <p><strong>Titik uji:</strong> pilih sembarang titik yang tidak terletak pada garis batas (biasanya $(0,0)$ jika garis tidak melalui titik asal). Substitusikan ke pertidaksamaan asli — jika pernyataan benar, daerah yang memuat titik uji adalah daerah penyelesaian; jika salah, daerah di seberangnyalah penyelesaiannya.</p>`,
+  contoh:[
+    {soal:"Gambarkan daerah penyelesaian $2x+3y\\le 12$.",
+     bahasan:"Garis batas: $2x+3y=12$. Titik potong X: $(6,0)$; titik potong Y: $(0,4)$. Karena simbolnya $\\le$, garis digambar penuh. Uji $(0,0)$: $2(0)+3(0)=0 \\le 12$ (benar), sehingga daerah penyelesaian memuat titik $(0,0)$, yaitu daerah di bawah/kiri garis."},
+    {soal:"Tentukan jenis garis batas dan hasil uji titik $(0,0)$ untuk $x-y>2$.",
+     bahasan:"Karena simbolnya $>$, garis digambar putus-putus. Uji $(0,0)$: $0-0=0>2$ salah, sehingga daerah penyelesaian adalah daerah yang TIDAK memuat $(0,0)$."}
+  ],
+  tips:"Selalu periksa apakah garis melalui $(0,0)$ sebelum memilih titik uji; jika ya, gunakan titik lain seperti $(1,0)$ atau $(0,1)$.",
+  kesalahan:"Kesalahan umum: menukar arah daerah arsiran, atau lupa mengubah jenis garis sesuai simbol (memakai garis penuh untuk tanda tegas $<,>$).",
+  ringkasan:"Grafik PtLDV dibentuk dari garis batas (penuh/putus-putus sesuai simbol) dan daerah penyelesaian yang ditentukan lewat titik uji.",
+  refleksi:"Mengapa titik pada garis batas tidak termasuk penyelesaian ketika simbolnya $<$ atau $>$?"
+},
+{
+  id:3, judul:"Sistem Pertidaksamaan Linear Dua Variabel",
+  tujuan:"Siswa dapat menjelaskan pengertian SPtLDV dan menentukan daerah penyelesaian sebagai irisan dari beberapa pertidaksamaan.",
+  penjelasan:`
+    <p><strong>Sistem Pertidaksamaan Linear Dua Variabel (SPtLDV)</strong> adalah kumpulan dua atau lebih PtLDV yang harus dipenuhi secara bersamaan oleh variabel yang sama.</p>
+    <p>Daerah penyelesaian SPtLDV adalah <strong>irisan (interseksi)</strong> dari daerah penyelesaian setiap pertidaksamaan anggotanya — yaitu himpunan titik yang memenuhi <em>semua</em> pertidaksamaan sekaligus, bukan hanya salah satu.</p>
+    <div class="example-box">Contoh sistem: $$x+y\\le 6,\\quad 2x+y\\le 8,\\quad x\\ge0,\\quad y\\ge0$$</div>
+    <p>Suatu titik dikatakan memenuhi sistem jika dan hanya jika titik tersebut memenuhi <strong>setiap</strong> pertidaksamaan dalam sistem itu.</p>`,
+  contoh:[
+    {soal:"Periksa apakah $(2,1)$ memenuhi sistem $x+y\\le 5$ dan $2x-y\\ge 1$.",
+     bahasan:"Uji pertidaksamaan pertama: $2+1=3\\le5$ (benar). Uji kedua: $2(2)-1=3\\ge1$ (benar). Karena keduanya benar, titik $(2,1)$ memenuhi sistem."},
+    {soal:"Periksa apakah $(0,0)$ memenuhi sistem $x+2y\\ge4$ dan $x\\ge0$.",
+     bahasan:"Uji pertama: $0+0=0\\ge4$ salah. Karena salah satu pertidaksamaan tidak terpenuhi, $(0,0)$ TIDAK memenuhi sistem, walau pertidaksamaan kedua terpenuhi."}
+  ],
+  tips:"Sebuah titik hanya dikatakan solusi sistem jika LULUS semua uji — cukup satu gagal, titik itu bukan solusi sistem.",
+  kesalahan:"Siswa sering berhenti setelah satu pertidaksamaan terpenuhi dan lupa memeriksa sisanya.",
+  ringkasan:"SPtLDV adalah gabungan beberapa PtLDV; solusinya adalah irisan seluruh daerah penyelesaian anggotanya.",
+  refleksi:"Jika sebuah titik memenuhi 3 dari 4 pertidaksamaan dalam suatu sistem, apakah titik itu solusi sistem? Mengapa?"
+},
+{
+  id:4, judul:"Daerah Penyelesaian dan Titik Sudut",
+  tujuan:"Siswa dapat menentukan irisan daerah penyelesaian, titik sudut, serta mengenali daerah terbatas, tak terbatas, atau kosong.",
+  penjelasan:`
+    <p><strong>Titik sudut (titik pojok)</strong> adalah titik perpotongan dua garis batas yang terletak pada batas daerah penyelesaian gabungan. Titik sudut dicari dengan menyelesaikan sistem persamaan dari dua garis batas secara simultan (eliminasi/substitusi).</p>
+    <p>Daerah penyelesaian dapat berupa:</p>
+    <ul>
+      <li><strong>Terbatas (bounded):</strong> daerah tertutup dengan luas berhingga, dikelilingi oleh garis-garis batas.</li>
+      <li><strong>Tidak terbatas (unbounded):</strong> daerah yang meluas tanpa batas ke satu arah atau lebih.</li>
+      <li><strong>Kosong (∅):</strong> tidak ada titik yang memenuhi seluruh pertidaksamaan sekaligus (sistem tidak konsisten).</li>
+    </ul>
+    <p>Daerah <strong>tertutup</strong> menyertakan batasnya (semua simbol $\\le/\\ge$); daerah <strong>terbuka</strong> tidak menyertakan sebagian/seluruh batas (ada simbol $<$ atau $>$).</p>`,
+  contoh:[
+    {soal:"Tentukan titik potong garis $x+y=6$ dan $2x+y=8$.",
+     bahasan:"Eliminasi $y$: $(2x+y)-(x+y)=8-6 \\Rightarrow x=2$. Substitusi ke $x+y=6 \\Rightarrow y=4$. Titik sudutnya adalah $(2,4)$."},
+    {soal:"Apakah sistem $x+y\\le2$ dan $x+y\\ge5$ memiliki daerah penyelesaian?",
+     bahasan:"Tidak ada nilai $x+y$ yang sekaligus $\\le2$ dan $\\ge5$, sehingga daerah penyelesaiannya kosong ($\\emptyset$)."}
+  ],
+  tips:"Tidak semua titik potong dua garis merupakan titik sudut daerah penyelesaian — periksa apakah titik itu benar-benar berada di batas daerah irisan (memenuhi semua pertidaksamaan lain).",
+  kesalahan:"Menganggap semua titik potong antar garis otomatis menjadi titik sudut tanpa memeriksa apakah titik itu memenuhi pertidaksamaan lain dalam sistem.",
+  ringkasan:"Titik sudut = perpotongan garis batas yang relevan; daerah penyelesaian bisa terbatas, tak terbatas, atau kosong tergantung bentuk sistemnya.",
+  refleksi:"Bagaimana caramu memastikan suatu titik potong benar-benar menjadi titik sudut daerah penyelesaian, bukan sekadar titik potong dua garis sembarang?"
+},
+{
+  id:5, judul:"Syarat Nonnegatif",
+  tujuan:"Siswa dapat menjelaskan makna syarat $x\\ge0, y\\ge0$ dan menentukan daerah penyelesaian pada kuadran pertama.",
+  penjelasan:`
+    <p>Syarat <strong>nonnegatif</strong> $x\\ge0$ dan $y\\ge0$ membatasi daerah penyelesaian hanya pada <strong>kuadran pertama</strong> (termasuk sumbu X positif dan sumbu Y positif), karena dalam banyak masalah kontekstual (jumlah barang, waktu, biaya) nilai variabel tidak mungkin negatif.</p>
+    <p>Ketika syarat ini digabungkan dengan pertidaksamaan lain, beberapa titik sudut daerah penyelesaian akan terletak <strong>pada sumbu koordinat</strong>, yaitu pada titik potong garis batas dengan sumbu X ($y=0$) atau sumbu Y ($x=0$), atau pada titik asal $(0,0)$.</p>`,
+  contoh:[
+    {soal:"Tentukan titik sudut pada sumbu untuk sistem $x\\ge0, y\\ge0, 2x+y\\le10$.",
+     bahasan:"Titik potong dengan sumbu X ($y=0$): $2x=10 \\Rightarrow x=5$, titik $(5,0)$. Titik potong dengan sumbu Y ($x=0$): $y=10$, titik $(0,10)$. Karena $x\\ge0,y\\ge0$, titik asal $(0,0)$ juga menjadi titik sudut."},
+    {soal:"Apakah titik $(-1,3)$ dapat menjadi anggota daerah penyelesaian jika disyaratkan $x\\ge0$?",
+     bahasan:"Tidak, karena $x=-1<0$ melanggar syarat nonnegatif $x\\ge0$."}
+  ],
+  tips:"Ketika soal menyebut konteks jumlah barang/orang/waktu, hampir selalu ada syarat tersirat $x\\ge0, y\\ge0$ meskipun tidak dituliskan eksplisit.",
+  kesalahan:"Melupakan syarat nonnegatif dalam model kontekstual sehingga daerah penyelesaian yang digambar mencakup kuadran yang tidak relevan.",
+  ringkasan:"Syarat $x\\ge0,y\\ge0$ membatasi solusi pada kuadran pertama dan sering memunculkan titik sudut pada sumbu koordinat atau titik asal.",
+  refleksi:"Mengapa dalam soal produksi barang, nilai $x$ dan $y$ tidak boleh negatif?"
+},
+{
+  id:6, judul:"Model Matematika Kontekstual",
+  tujuan:"Siswa dapat mengubah permasalahan sehari-hari menjadi sistem pertidaksamaan linear dua variabel.",
+  penjelasan:`
+    <p>Langkah menyusun model matematika dari soal cerita:</p>
+    <ol>
+      <li>Tentukan dua variabel yang mewakili besaran yang dicari (misalnya $x$ = banyak barang A, $y$ = banyak barang B).</li>
+      <li>Identifikasi kendala (bahan baku, waktu, biaya, kapasitas) yang membatasi $x$ dan $y$.</li>
+      <li>Ubah setiap kendala menjadi pertidaksamaan linear, perhatikan kata kunci: "tidak lebih dari / paling banyak" → $\\le$; "tidak kurang dari / paling sedikit" → $\\ge$.</li>
+      <li>Tambahkan syarat nonnegatif $x\\ge0, y\\ge0$ jika sesuai konteks.</li>
+      <li>Kumpulkan semua pertidaksamaan menjadi satu sistem.</li>
+    </ol>`,
+  contoh:[
+    {soal:"Sebuah toko memiliki modal Rp2.000.000 untuk membeli baju seharga Rp50.000 ($x$ buah) dan celana seharga Rp80.000 ($y$ buah). Susun kendala modalnya.",
+     bahasan:"Total biaya tidak boleh melebihi modal: $50000x + 80000y \\le 2000000$, disederhanakan menjadi $5x+8y\\le200$. Ditambah syarat $x\\ge0, y\\ge0$."},
+    {soal:"Sebuah gudang menampung maksimal 100 kotak, terdiri dari kotak A ($x$) dan kotak B ($y$). Tuliskan kendala kapasitas gudang.",
+     bahasan:"Karena tidak boleh melebihi kapasitas: $x+y\\le100$, dengan $x\\ge0, y\\ge0$."}
+  ],
+  tips:"Garis bawahi kata kunci pembanding dalam soal cerita ('maksimal', 'minimal', 'tidak lebih dari') karena itu menentukan simbol pertidaksamaan yang tepat.",
+  kesalahan:"Menukar simbol $\\le$ dengan $\\ge$ karena salah menafsirkan kata kunci pada soal cerita.",
+  ringkasan:"Model matematika kontekstual dibentuk dengan menentukan variabel, kendala, mengubahnya menjadi pertidaksamaan, dan menambahkan syarat nonnegatif.",
+  refleksi:"Coba buat satu kendala dari situasi nyata di sekitarmu (misalnya uang saku atau waktu belajar) dan ubah menjadi pertidaksamaan."
+},
+{
+  id:7, judul:"Nilai Optimum dan Program Linear Sederhana",
+  tujuan:"Siswa dapat menentukan fungsi objektif, menghitung nilainya pada titik sudut, dan menyimpulkan nilai maksimum/minimum.",
+  penjelasan:`
+    <p><strong>Fungsi objektif</strong> (fungsi tujuan) adalah fungsi $f(x,y)=px+qy$ yang nilainya ingin dimaksimumkan atau diminimumkan, dengan $x,y$ dibatasi oleh SPtLDV (daerah kendala).</p>
+    <p><strong>Prinsip titik sudut:</strong> jika daerah penyelesaian berbentuk daerah tertutup dan terbatas (konveks), nilai optimum fungsi objektif linear selalu tercapai pada salah satu titik sudut daerah tersebut. Karena itu, cukup menghitung nilai $f(x,y)$ pada setiap titik sudut, lalu membandingkannya.</p>
+    <div class="warn-box">Jika daerah penyelesaian <strong>tidak terbatas</strong>, nilai maksimum atau minimum bisa jadi <strong>tidak tercapai</strong> (tak terhingga) untuk arah tertentu. Jika daerah <strong>kosong</strong>, tidak ada nilai optimum sama sekali.</div>`,
+  contoh:[
+    {soal:"Diketahui titik sudut $(0,0), (5,0), (3,4), (0,6)$ dan fungsi objektif $f(x,y)=4x+3y$. Tentukan nilai maksimum.",
+     bahasan:"$f(0,0)=0$; $f(5,0)=20$; $f(3,4)=12+12=24$; $f(0,6)=18$. Nilai maksimum adalah $24$, tercapai di titik $(3,4)$."},
+    {soal:"Dengan titik sudut yang sama, tentukan nilai minimum $f(x,y)=4x+3y$.",
+     bahasan:"Dari perhitungan sebelumnya, nilai terkecil adalah $0$ pada titik $(0,0)$."}
+  ],
+  tips:"Susun hasil perhitungan $f(x,y)$ pada tiap titik sudut dalam bentuk tabel agar mudah dibandingkan.",
+  kesalahan:"Menghitung fungsi objektif pada titik sembarang di dalam daerah, bukan pada titik sudutnya.",
+  ringkasan:"Nilai optimum fungsi objektif linear pada daerah tertutup-terbatas dicapai di salah satu titik sudut; hitung dan bandingkan nilai pada semua titik sudut.",
+  refleksi:"Mengapa nilai optimum tidak perlu dicari pada titik-titik di bagian dalam daerah penyelesaian?"
+},
+{
+  id:8, judul:"Interpretasi dan Evaluasi Solusi",
+  tujuan:"Siswa dapat memeriksa kelayakan suatu titik terhadap sistem pertidaksamaan dan menganalisis kesalahan umum dalam menggambar grafik.",
+  penjelasan:`
+    <p>Tahap akhir dalam menyelesaikan masalah SPtLDV adalah <strong>memeriksa dan menafsirkan</strong> hasil: apakah titik yang diperoleh benar-benar layak (feasible), dan apa makna titik tersebut dalam konteks soal aslinya.</p>
+    <p>Langkah evaluasi solusi:</p>
+    <ol>
+      <li>Substitusikan titik ke setiap pertidaksamaan dalam sistem — pastikan semuanya terpenuhi.</li>
+      <li>Periksa apakah nilai variabel masuk akal dalam konteks (misalnya, banyak barang harus bulat dan tidak negatif).</li>
+      <li>Tafsirkan titik sudut optimum dalam kalimat sesuai konteks soal (misalnya "toko sebaiknya memproduksi 3 unit A dan 4 unit B").</li>
+    </ol>`,
+  contoh:[
+    {soal:"Periksa apakah $(4,2)$ layak untuk sistem $x+y\\le5$, $x\\ge0$, $y\\ge0$.",
+     bahasan:"$4+2=6\\le5$ salah, sehingga $(4,2)$ TIDAK layak (bukan solusi sistem), walau memenuhi syarat nonnegatif."},
+    {soal:"Seorang siswa menggambar arsiran di sisi yang salah untuk $x+y\\ge4$ dengan menguji $(0,0)$ tanpa memeriksa apakah pernyataannya benar. Apa kesalahannya?",
+     bahasan:"$0+0=0\\ge4$ adalah pernyataan salah, sehingga daerah penyelesaian seharusnya berada di seberang $(0,0)$, bukan memuat $(0,0)$. Kesalahannya adalah mengasumsikan hasil titik uji tanpa benar-benar memeriksa kebenaran pertidaksamaannya."}
+  ],
+  tips:"Selalu tuliskan hasil substitusi secara eksplisit (angka demi angka) sebelum menyimpulkan benar/salah, agar tidak terjadi kesalahan aritmetika.",
+  kesalahan:"Menyimpulkan kelayakan titik hanya berdasarkan satu pertidaksamaan, atau salah aritmetika saat substitusi.",
+  ringkasan:"Evaluasi solusi berarti memeriksa titik terhadap seluruh pertidaksamaan sistem dan menafsirkan maknanya sesuai konteks soal.",
+  refleksi:"Menurutmu, mengapa penting untuk menafsirkan titik sudut optimum ke dalam kalimat, bukan hanya menuliskan koordinatnya saja?"
+}
+];
+
+function renderTeoriGrid(){
+  const grid = document.getElementById('teoriGrid');
+  grid.innerHTML = teoriData.map(t=>`
+    <div class="card subbab-card" onclick="openTeoriDetail(${t.id})">
+      <span class="tag">Subbab ${t.id}</span>
+      <h3>${t.judul}</h3>
+      <p class="small">${t.tujuan.slice(0,90)}...</p>
+    </div>`).join('');
+}
+function openTeoriDetail(id){
+  const t = teoriData.find(x=>x.id===id);
+  const el = document.getElementById('teoriDetail');
+  el.innerHTML = `
+    <div class="card">
+      <span class="tag">Subbab ${t.id}</span>
+      <h2>${t.judul}</h2>
+      <p><strong>Tujuan Pembelajaran:</strong> ${t.tujuan}</p>
+      ${t.penjelasan}
+      <h3>Contoh Soal &amp; Pembahasan</h3>
+      ${t.contoh.map((c,i)=>`<div class="example-box"><strong>Contoh ${i+1}:</strong> ${c.soal}<details style="margin-top:6px;"><summary style="cursor:pointer;color:var(--navy);font-weight:600;">Lihat pembahasan</summary><p>${c.bahasan}</p></details></div>`).join('')}
+      <div class="tip-box"><strong>Tips memahami konsep:</strong> ${t.tips}</div>
+      <div class="warn-box"><strong>Kesalahan umum siswa:</strong> ${t.kesalahan}</div>
+      <div class="summary-box"><strong>Ringkasan:</strong> ${t.ringkasan}</div>
+      <p><strong>Pertanyaan refleksi:</strong> <em>${t.refleksi}</em></p>
+      <div class="btn-row">
+        <button class="btn secondary" onclick="document.getElementById('teoriDetail').innerHTML='';">Tutup</button>
+        ${id<8 ? `<button class="btn" onclick="openTeoriDetail(${id+1})">Subbab Berikutnya →</button>` : ''}
+      </div>
+    </div>`;
+  renderMath();
+  el.scrollIntoView({behavior:'smooth', block:'start'});
+}
+renderTeoriGrid();
+
+/* ============================================================
+   TAB PROSEDUR
+   ============================================================ */
+const prosedurData = {
+  A:{ judul:"Menggambar Grafik Pertidaksamaan",
+    langkah:[
+      {t:"Identifikasi pertidaksamaan", d:"Tuliskan pertidaksamaan yang akan digambar, misalnya $2x+3y\\le12$, dan kenali nilai $a,b,c$ serta simbolnya."},
+      {t:"Ubah menjadi persamaan garis batas", d:"Ganti simbol pertidaksamaan dengan tanda \"=\" sehingga menjadi $2x+3y=12$."},
+      {t:"Tentukan minimal dua titik pada garis", d:"Cari titik potong sumbu X ($y=0 \\Rightarrow x=6$) dan sumbu Y ($x=0 \\Rightarrow y=4$), sehingga diperoleh titik $(6,0)$ dan $(0,4)$."},
+      {t:"Gambar garis batas", d:"Hubungkan kedua titik tersebut dengan sebuah garis lurus pada bidang Kartesius."},
+      {t:"Tentukan jenis garis", d:"Karena simbolnya $\\le$, garis digambar penuh (solid); jika simbolnya $<$ atau $>$, garis digambar putus-putus."},
+      {t:"Gunakan titik uji", d:"Pilih titik yang tidak berada pada garis, misalnya $(0,0)$, lalu substitusikan: $2(0)+3(0)=0\\le12$ (benar)."},
+      {t:"Tentukan dan arsir daerah penyelesaian", d:"Karena titik uji memenuhi pertidaksamaan, arsir daerah yang memuat titik uji tersebut sebagai daerah penyelesaian."}
+    ]},
+  B:{ judul:"Menentukan Daerah Penyelesaian Sistem",
+    langkah:[
+      {t:"Gambar seluruh garis batas", d:"Gambarkan garis batas dari setiap pertidaksamaan dalam sistem pada satu bidang Kartesius yang sama."},
+      {t:"Tentukan daerah tiap pertidaksamaan", d:"Gunakan titik uji pada masing-masing pertidaksamaan untuk menentukan daerah penyelesaiannya secara terpisah."},
+      {t:"Identifikasi irisan daerah", d:"Cari daerah yang merupakan irisan (overlap) dari semua daerah penyelesaian individual — inilah daerah penyelesaian sistem."},
+      {t:"Tentukan titik sudut jika diperlukan", d:"Hitung titik potong antar garis batas yang membentuk batas daerah irisan."},
+      {t:"Periksa titik relevan terhadap semua kendala", d:"Pastikan setiap calon titik sudut benar-benar memenuhi seluruh pertidaksamaan dalam sistem."},
+      {t:"Tuliskan kesimpulan", d:"Nyatakan daerah penyelesaian sistem beserta sifatnya (terbatas/tidak terbatas/kosong)."}
+    ]},
+  C:{ judul:"Menyusun Model Matematika Kontekstual",
+    langkah:[
+      {t:"Pahami permasalahan", d:"Baca soal cerita dengan cermat dan identifikasi apa yang ditanyakan."},
+      {t:"Tentukan variabel", d:"Misalkan $x$ dan $y$ mewakili dua besaran yang belum diketahui, misalnya banyak barang A dan B."},
+      {t:"Identifikasi batasan", d:"Cari informasi tentang kendala seperti modal, waktu, bahan baku, atau kapasitas."},
+      {t:"Ubah batasan menjadi pertidaksamaan", d:"Terjemahkan setiap kendala menjadi bentuk $ax+by\\square c$ sesuai kata kunci pada soal."},
+      {t:"Tambahkan syarat nonnegatif", d:"Sertakan $x\\ge0$ dan $y\\ge0$ jika variabel mewakili banyak barang, waktu, atau biaya."},
+      {t:"Susun sistem pertidaksamaan", d:"Kumpulkan seluruh pertidaksamaan menjadi satu sistem yang mewakili keseluruhan kendala."},
+      {t:"Interpretasikan hasil", d:"Jelaskan makna sistem pertidaksamaan tersebut dalam konteks permasalahan awal."}
+    ]},
+  D:{ judul:"Menentukan Nilai Optimum",
+    langkah:[
+      {t:"Tentukan kendala", d:"Kumpulkan seluruh pertidaksamaan yang membatasi masalah (fungsi kendala)."},
+      {t:"Gambar daerah penyelesaian", d:"Gambarkan daerah penyelesaian dari sistem kendala tersebut."},
+      {t:"Tentukan titik-titik sudut yang relevan", d:"Cari seluruh titik sudut daerah penyelesaian yang layak (feasible)."},
+      {t:"Tentukan fungsi objektif", d:"Tuliskan fungsi yang akan dimaksimumkan/diminimumkan, misalnya $f(x,y)=px+qy$."},
+      {t:"Hitung nilai fungsi objektif pada tiap titik sudut", d:"Substitusikan koordinat setiap titik sudut ke fungsi objektif."},
+      {t:"Bandingkan hasil", d:"Susun hasil perhitungan dalam tabel untuk memudahkan perbandingan."},
+      {t:"Tentukan nilai maksimum/minimum", d:"Pilih nilai terbesar untuk maksimum, atau terkecil untuk minimum, jika tercapai."},
+      {t:"Interpretasikan hasil", d:"Jelaskan makna titik optimum tersebut sesuai konteks soal."}
+    ]}
+};
+let prosedurState = {};
+function renderProsedurPicker(){
+  const el = document.getElementById('prosedurPicker');
+  el.innerHTML = Object.entries(prosedurData).map(([k,v])=>
+    `<div class="card subbab-card" onclick="startProsedur('${k}')"><span class="tag">Prosedur ${k}</span><h3 style="font-size:1rem;">${v.judul}</h3></div>`).join('');
+}
+function startProsedur(key){
+  prosedurState = { key, step:0, checked:[] };
+  renderProsedurStage();
+}
+function renderProsedurStage(){
+  const stage = document.getElementById('prosedurStage');
+  if(!prosedurState.key){ stage.innerHTML = '<p class="small">Pilih salah satu prosedur di atas untuk memulai.</p>'; return; }
+  const data = prosedurData[prosedurState.key];
+  const n = data.langkah.length;
+  const i = prosedurState.step;
+  const step = data.langkah[i];
+  stage.innerHTML = `
+    <h2>Prosedur ${prosedurState.key}: ${data.judul}</h2>
+    <div class="stepper-track">${data.langkah.map((_,idx)=>`<div class="${idx<i?'done':idx===i?'now':''}"></div>`).join('')}</div>
+    <p class="small">Langkah ${i+1} dari ${n}</p>
+    <div class="example-box">
+      <h3 style="margin-top:0;">${i+1}. ${step.t}</h3>
+      <p>${step.d}</p>
+    </div>
+    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+      <input type="checkbox" id="chkStep" ${prosedurState.checked[i]?'checked':''} onchange="toggleChecklist(${i})"> Saya sudah memahami langkah ini
+    </label>
+    <div class="btn-row">
+      <button class="btn secondary" onclick="prosedurNav(-1)" ${i===0?'disabled':''}>← Langkah Sebelumnya</button>
+      <button class="btn" onclick="prosedurNav(1)" ${i===n-1?'disabled':''}>Langkah Berikutnya →</button>
+      <button class="btn amber" onclick="startProsedur('${prosedurState.key}')">Reset Prosedur</button>
+    </div>
+    <div class="summary-box"><strong>Checklist keseluruhan:</strong> ${prosedurState.checked.filter(Boolean).length} / ${n} langkah ditandai paham.</div>`;
+  renderMath();
+}
+function toggleChecklist(i){ prosedurState.checked[i] = document.getElementById('chkStep').checked; renderProsedurStage(); }
+function prosedurNav(dir){
+  const n = prosedurData[prosedurState.key].langkah.length;
+  prosedurState.step = Math.min(n-1, Math.max(0, prosedurState.step+dir));
+  renderProsedurStage();
+}
+renderProsedurPicker();
+renderProsedurStage();
+
+/* ============================================================
+   TAB SIMULASI — util grafik Kartesius bersama
+   ============================================================ */
+const PLANE_RANGE = {xmin:-4, xmax:16, ymin:-4, ymax:16};
+function toPx(x,y,canvas,range){
+  const w=canvas.width, h=canvas.height;
+  const px = (x-range.xmin)/(range.xmax-range.xmin)*w;
+  const py = h - (y-range.ymin)/(range.ymax-range.ymin)*h;
+  return [px,py];
+}
+function evalConstraint(pt, c){
+  const v = c.a*pt[0] + c.b*pt[1];
+  switch(c.sym){
+    case '<=': return v <= c.c + 1e-9;
+    case '>=': return v >= c.c - 1e-9;
+    case '<':  return v <  c.c - 1e-9;
+    case '>':  return v >  c.c + 1e-9;
+  }
+}
+function lineIntersect(c1,c2){
+  const det = c1.a*c2.b - c2.a*c1.b;
+  if(Math.abs(det) < 1e-9) return null;
+  const x = (c1.c*c2.b - c2.c*c1.b)/det;
+  const y = (c1.a*c2.c - c2.a*c1.c)/det;
+  return [x,y];
+}
+function feasibleAll(pt, constraints){ return constraints.every(c=>evalConstraint(pt,c)); }
+
+function drawPlane(canvas, constraints, opts={}){
+  const ctx = canvas.getContext('2d');
+  const range = PLANE_RANGE;
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  // shading (grid sampling)
+  const active = constraints.filter(c=>c.active!==false);
+  if(active.length){
+    for(let px=0; px<canvas.width; px+=4){
+      for(let py=0; py<canvas.height; py+=4){
+        const x = range.xmin + (px/canvas.width)*(range.xmax-range.xmin);
+        const y = range.ymin + ((canvas.height-py)/canvas.height)*(range.ymax-range.ymin);
+        if(feasibleAll([x,y], active)){
+          ctx.fillStyle = 'rgba(47,122,110,0.18)';
+          ctx.fillRect(px,py,4,4);
+        }
+      }
+    }
+  }
+  // grid
+  ctx.strokeStyle = '#e7e5dd'; ctx.lineWidth=1;
+  for(let gx=Math.ceil(range.xmin); gx<=range.xmax; gx++){
+    const [px] = toPx(gx,0,canvas,range);
+    ctx.beginPath(); ctx.moveTo(px,0); ctx.lineTo(px,canvas.height); ctx.stroke();
+  }
+  for(let gy=Math.ceil(range.ymin); gy<=range.ymax; gy++){
+    const [,py] = toPx(0,gy,canvas,range);
+    ctx.beginPath(); ctx.moveTo(0,py); ctx.lineTo(canvas.width,py); ctx.stroke();
+  }
+  // axes
+  ctx.strokeStyle = '#1c2430'; ctx.lineWidth=2;
+  const [ox,oy] = toPx(0,0,canvas,range);
+  ctx.beginPath(); ctx.moveTo(0,oy); ctx.lineTo(canvas.width,oy); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(ox,0); ctx.lineTo(ox,canvas.height); ctx.stroke();
+  ctx.fillStyle='#1c2430'; ctx.font='11px sans-serif';
+  ctx.fillText('X', canvas.width-14, oy-6); ctx.fillText('Y', ox+6, 12);
+  for(let gx=Math.ceil(range.xmin); gx<=range.xmax; gx+=2){ if(gx===0)continue; const [px]=toPx(gx,0,canvas,range); ctx.fillText(gx, px-4, oy+13); }
+  for(let gy=Math.ceil(range.ymin); gy<=range.ymax; gy+=2){ if(gy===0)continue; const [,py]=toPx(0,gy,canvas,range); ctx.fillText(gy, ox+4, py+3); }
+  // lines
+  const colors = ['#1e3a5f','#c8802b','#2f7a6e','#b8433a','#7a4fb0','#0b7285'];
+  constraints.forEach((c,idx)=>{
+    if(c.active===false) return;
+    ctx.strokeStyle = colors[idx%colors.length]; ctx.lineWidth=2.4;
+    ctx.setLineDash((c.sym==='<'||c.sym==='>') ? [7,6] : []);
+    let p1,p2;
+    if(Math.abs(c.b) < 1e-9){ // vertikal: x = c/a
+      const xv = c.c/c.a; p1=[xv,range.ymin]; p2=[xv,range.ymax];
+    } else {
+      p1 = [range.xmin, (c.c - c.a*range.xmin)/c.b];
+      p2 = [range.xmax, (c.c - c.a*range.xmax)/c.b];
+    }
+    const [x1,y1]=toPx(p1[0],p1[1],canvas,range), [x2,y2]=toPx(p2[0],p2[1],canvas,range);
+    ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+  });
+  ctx.setLineDash([]);
+  // corner points
+  if(opts.corners){
+    opts.corners.forEach(pt=>{
+      const [px,py] = toPx(pt[0],pt[1],canvas,range);
+      ctx.fillStyle = '#b8433a';
+      ctx.beginPath(); ctx.arc(px,py,5,0,7); ctx.fill();
+      ctx.fillStyle = '#1c2430'; ctx.font='11px sans-serif';
+      ctx.fillText(`(${fmtNum(pt[0])}, ${fmtNum(pt[1])})`, px+7, py-6);
+    });
+  }
+  // test point
+  if(opts.testPoint){
+    const [px,py] = toPx(opts.testPoint[0], opts.testPoint[1], canvas, range);
+    ctx.fillStyle = '#7a4fb0';
+    ctx.beginPath(); ctx.arc(px,py,6,0,7); ctx.fill();
+    ctx.strokeStyle='#fff'; ctx.lineWidth=2; ctx.stroke();
+  }
+}
+function findCorners(constraints){
+  const active = constraints.filter(c=>c.active!==false);
+  const pts = [];
+  for(let i=0;i<active.length;i++){
+    for(let j=i+1;j<active.length;j++){
+      const p = lineIntersect(active[i], active[j]);
+      if(p && feasibleAll(p, active)) pts.push(p);
+    }
+  }
+  // dedup
+  const uniq = [];
+  pts.forEach(p=>{ if(!uniq.some(q=>Math.abs(q[0]-p[0])<1e-6 && Math.abs(q[1]-p[1])<1e-6)) uniq.push(p); });
+  return uniq;
+}
+function regionStatus(constraints){
+  const active = constraints.filter(c=>c.active!==false);
+  if(!active.length) return 'kosong';
+  // cek titik layak di sampling kasar
+  let anyFeasible=false;
+  for(let x=PLANE_RANGE.xmin;x<=PLANE_RANGE.xmax && !anyFeasible;x+=0.5){
+    for(let y=PLANE_RANGE.ymin;y<=PLANE_RANGE.ymax;y+=0.5){
+      if(feasibleAll([x,y],active)){ anyFeasible=true; break; }
+    }
+  }
+  if(!anyFeasible) return 'kosong';
+  // cek tak terbatas: uji titik jauh di beberapa arah
+  const dirs = [[1,0],[0,1],[1,1],[-1,1],[1,-1],[-1,0],[0,-1],[-1,-1]];
+  const far = 500;
+  const unbounded = dirs.some(([dx,dy])=> feasibleAll([dx*far, dy*far], active));
+  return unbounded ? 'tidak terbatas' : 'terbatas';
+}
+function constraintEditorHTML(constraints, prefix, withToggle){
+  return constraints.map((c,i)=>`
+    <div class="constraint-row">
+      <span class="small">${i+1}.</span>
+      <input type="number" value="${c.a}" onchange="${prefix}[${i}].a=parseFloat(this.value)||0; ${prefix}Update();">
+      <input type="number" value="${c.b}" onchange="${prefix}[${i}].b=parseFloat(this.value)||0; ${prefix}Update();">
+      <select onchange="${prefix}[${i}].sym=this.value; ${prefix}Update();">
+        ${['<=','>=','<','>'].map(s=>`<option value="${s}" ${c.sym===s?'selected':''}>${s}</option>`).join('')}
+      </select>
+      <input type="number" value="${c.c}" onchange="${prefix}[${i}].c=parseFloat(this.value)||0; ${prefix}Update();">
+      ${withToggle ? `<label class="small" style="display:flex;align-items:center;gap:4px;"><input type="checkbox" ${c.active!==false?'checked':''} onchange="${prefix}[${i}].active=this.checked; ${prefix}Update();">aktif</label>` : '<span></span>'}
+    </div>`).join('');
+}
+
+/* ---------- SIMULASI A: Eksplorasi Garis Batas ---------- */
+let simA = [{a:2,b:3,sym:'<=',c:12,active:true}];
+function simAUpdate(){
+  const c = simA[0];
+  const canvas = document.getElementById('canvasA');
+  drawPlane(canvas, simA, {});
+  const xInt = Math.abs(c.a)>1e-9 ? fmtNum(c.c/c.a) : '—';
+  const yInt = Math.abs(c.b)>1e-9 ? fmtNum(c.c/c.b) : '—';
+  document.getElementById('infoA').innerHTML = `
+    <p>Persamaan garis batas: $${c.a}x ${c.b>=0?'+':'-'} ${Math.abs(c.b)}y = ${c.c}$</p>
+    <p>Titik potong sumbu X: <strong>(${xInt}, 0)</strong> &nbsp;|&nbsp; Titik potong sumbu Y: <strong>(0, ${yInt})</strong></p>
+    <p>Jenis garis: <strong>${(c.sym==='<'||c.sym==='>') ? 'putus-putus (tegas)' : 'penuh (tidak tegas)'}</strong></p>`;
+  renderMath();
+}
+function renderSimA(){
+  document.getElementById('simStage').innerHTML = `
+    <div class="card">
+      <h2>Simulasi A — Eksplorasi Garis Batas $ax+by \\square c$</h2>
+      <div class="param-row">
+        <div><label>a</label><input type="number" id="a_a" value="${simA[0].a}" onchange="simA[0].a=parseFloat(this.value)||0; simAUpdate();"></div>
+        <div><label>b</label><input type="number" id="a_b" value="${simA[0].b}" onchange="simA[0].b=parseFloat(this.value)||0; simAUpdate();"></div>
+        <div><label>Simbol</label><select onchange="simA[0].sym=this.value; simAUpdate();">${['<=','>=','<','>'].map(s=>`<option value="${s}" ${simA[0].sym===s?'selected':''}>${s}</option>`).join('')}</select></div>
+        <div><label>c</label><input type="number" id="a_c" value="${simA[0].c}" onchange="simA[0].c=parseFloat(this.value)||0; simAUpdate();"></div>
+      </div>
+      <div id="infoA" style="margin-top:10px;"></div>
+      <canvas id="canvasA" width="520" height="420"></canvas>
+      <div class="btn-row"><button class="btn amber" onclick="simA=[{a:2,b:3,sym:'<=',c:12,active:true}]; renderSimA();">Reset</button></div>
+    </div>`;
+  simAUpdate();
+}
+
+/* ---------- SIMULASI B: Sistem Pertidaksamaan ---------- */
+let simB = [
+  {a:1,b:1,sym:'<=',c:8,active:true},
+  {a:2,b:1,sym:'<=',c:12,active:true},
+  {a:1,b:0,sym:'>=',c:0,active:true},
+  {a:0,b:1,sym:'>=',c:0,active:true}
+];
+function simBUpdate(){
+  const corners = findCorners(simB);
+  const status = regionStatus(simB);
+  drawPlane(document.getElementById('canvasB'), simB, {corners});
+  document.getElementById('infoB').innerHTML = `
+    <p><strong>Status daerah penyelesaian:</strong> <span class="badge ${status==='kosong'?'bad':status==='tidak terbatas'?'warn':'ok'}">${status}</span></p>
+    <p><strong>Titik sudut terdeteksi:</strong> ${corners.length ? corners.map(p=>`(${fmtNum(p[0])}, ${fmtNum(p[1])})`).join(' · ') : 'tidak ada'}</p>
+    <p class="small">Status "tidak terbatas" diuji dengan memeriksa kelayakan titik yang sangat jauh dari titik asal ke berbagai arah pada jendela pandang saat ini.</p>`;
+}
+function renderSimB(){
+  document.getElementById('simStage').innerHTML = `
+    <div class="card">
+      <h2>Simulasi B — Sistem Pertidaksamaan (Irisan Daerah)</h2>
+      <p class="small">Ubah koefisien, nonaktifkan kendala dengan mencentang/melepas "aktif". Minimal 4 kendala tersedia.</p>
+      <div id="editorB">${constraintEditorHTML(simB,'simB',true)}</div>
+      <div id="infoB" style="margin-top:8px;"></div>
+      <canvas id="canvasB" width="520" height="420"></canvas>
+      <div class="btn-row">
+        <button class="btn secondary" onclick="simB.push({a:1,b:1,sym:'<=',c:10,active:true}); renderSimB();">+ Tambah Kendala</button>
+        <button class="btn amber" onclick="simB=[{a:1,b:1,sym:'<=',c:8,active:true},{a:2,b:1,sym:'<=',c:12,active:true},{a:1,b:0,sym:'>=',c:0,active:true},{a:0,b:1,sym:'>=',c:0,active:true}]; renderSimB();">Reset</button>
+      </div>
+    </div>`;
+  simBUpdate();
+}
+window.simBUpdate = simBUpdate;
+
+/* ---------- SIMULASI C: Titik Uji ---------- */
+let simC = [
+  {a:1,b:1,sym:'<=',c:8,active:true},
+  {a:2,b:1,sym:'<=',c:12,active:true}
+];
+let simCPoint = [2,2];
+function simCUpdate(){
+  drawPlane(document.getElementById('canvasC'), simC, {testPoint:simCPoint});
+  const rows = simC.filter(c=>c.active!==false).map((c,i)=>{
+    const ok = evalConstraint(simCPoint,c);
+    const val = c.a*simCPoint[0]+c.b*simCPoint[1];
+    return `<tr><td>${i+1}. $${c.a}x ${c.b>=0?'+':'-'} ${Math.abs(c.b)}y ${fmtSign(c.sym)} ${c.c}$</td><td>${fmtNum(val)} ${symText(c.sym)} ${c.c}</td><td><span class="badge ${ok?'ok':'bad'}">${ok?'Memenuhi':'Tidak memenuhi'}</span></td></tr>`;
+  }).join('');
+  const semua = simC.filter(c=>c.active!==false).every(c=>evalConstraint(simCPoint,c));
+  document.getElementById('infoC').innerHTML = `
+    <table class="sub-table"><tr><th>Pertidaksamaan</th><th>Substitusi</th><th>Status</th></tr>${rows}</table>
+    <div class="summary-box"><strong>Kesimpulan:</strong> Titik $(${simCPoint[0]}, ${simCPoint[1]})$
+      ${semua ? '<span class="badge ok">MEMENUHI seluruh sistem</span>' : '<span class="badge bad">TIDAK memenuhi sistem</span>'}
+      karena ${semua ? 'setiap pertidaksamaan bernilai benar setelah substitusi.' : 'terdapat minimal satu pertidaksamaan yang tidak terpenuhi.'}</div>`;
+  renderMath();
+}
+function renderSimC(){
+  document.getElementById('simStage').innerHTML = `
+    <div class="card">
+      <h2>Simulasi C — Uji Titik terhadap Sistem</h2>
+      <div id="editorC">${constraintEditorHTML(simC,'simC',true)}</div>
+      <div class="param-row" style="max-width:260px;">
+        <div><label>x</label><input type="number" value="${simCPoint[0]}" onchange="simCPoint[0]=parseFloat(this.value)||0; simCUpdate();"></div>
+        <div><label>y</label><input type="number" value="${simCPoint[1]}" onchange="simCPoint[1]=parseFloat(this.value)||0; simCUpdate();"></div>
+      </div>
+      <canvas id="canvasC" width="520" height="420"></canvas>
+      <div id="infoC" style="margin-top:8px;"></div>
+      <div class="btn-row"><button class="btn amber" onclick="simC=[{a:1,b:1,sym:'<=',c:8,active:true},{a:2,b:1,sym:'<=',c:12,active:true}]; simCPoint=[2,2]; renderSimC();">Reset</button></div>
+    </div>`;
+  simCUpdate();
+}
+window.simCUpdate = simCUpdate;
+
+/* ---------- SIMULASI D: Model Matematika Kontekstual ---------- */
+const simDProblem = {
+  teks:"Sebuah pabrik roti memproduksi Roti A ($x$ buah) dan Roti B ($y$ buah) setiap hari. Setiap Roti A memerlukan 2 kg tepung dan setiap Roti B memerlukan 1 kg tepung, dengan persediaan tepung maksimal 40 kg per hari. Selain itu, waktu pemanggangan Roti A adalah 1 jam dan Roti B adalah 2 jam, dengan total waktu oven maksimal 30 jam per hari. Susunlah sistem pertidaksamaan yang memodelkan kendala produksi ini (termasuk syarat nonnegatif).",
+  correct:[ {a:2,b:1,sym:'<=',c:40}, {a:1,b:2,sym:'<=',c:30}, {a:1,b:0,sym:'>=',c:0}, {a:0,b:1,sym:'>=',c:0} ]
+};
+let simDAnswer = [{a:0,b:0,sym:'<=',c:0},{a:0,b:0,sym:'<=',c:0},{a:1,b:0,sym:'>=',c:0},{a:0,b:1,sym:'>=',c:0}];
+function simDUpdate(){ /* no live redraw needed until check */ }
+function checkSimD(){
+  const fb = simDAnswer.slice(0,2).map((ans,i)=>{
+    const target = simDProblem.correct[i];
+    const same = ans.a===target.a && ans.b===target.b && ans.sym===target.sym && ans.c===target.c;
+    return `<li>Kendala ${i+1}: ${same? '<span class="badge ok">Benar</span>' : `<span class="badge bad">Belum tepat</span> — seharusnya $${target.a}x ${target.b>=0?'+':'-'} ${Math.abs(target.b)}y ${fmtSign(target.sym)} ${target.c}$`}</li>`;
+  }).join('');
+  document.getElementById('feedbackD').innerHTML = `<ul>${fb}</ul>`;
+  drawPlane(document.getElementById('canvasD'), simDProblem.correct, {corners:findCorners(simDProblem.correct)});
+  renderMath();
+  const allOk = simDAnswer.slice(0,2).every((ans,i)=> ans.a===simDProblem.correct[i].a && ans.b===simDProblem.correct[i].b && ans.sym===simDProblem.correct[i].sym && ans.c===simDProblem.correct[i].c);
+  if(allOk) sfxSuccess(); else sfxWrong();
+}
+function renderSimD(){
+  document.getElementById('simStage').innerHTML = `
+    <div class="card">
+      <h2>Simulasi D — Model Matematika Kontekstual</h2>
+      <div class="example-box">${simDProblem.teks}</div>
+      <p class="small">Masukkan dua kendala utama (selain syarat nonnegatif) menurut model yang kamu susun:</p>
+      <div class="constraint-row"><span class="small">1.</span>
+        <input type="number" onchange="simDAnswer[0].a=parseFloat(this.value)||0;">
+        <input type="number" onchange="simDAnswer[0].b=parseFloat(this.value)||0;">
+        <select onchange="simDAnswer[0].sym=this.value;">${['<=','>=','<','>'].map(s=>`<option value="${s}">${s}</option>`).join('')}</select>
+        <input type="number" onchange="simDAnswer[0].c=parseFloat(this.value)||0;"><span></span>
+      </div>
+      <div class="constraint-row"><span class="small">2.</span>
+        <input type="number" onchange="simDAnswer[1].a=parseFloat(this.value)||0;">
+        <input type="number" onchange="simDAnswer[1].b=parseFloat(this.value)||0;">
+        <select onchange="simDAnswer[1].sym=this.value;">${['<=','>=','<','>'].map(s=>`<option value="${s}">${s}</option>`).join('')}</select>
+        <input type="number" onchange="simDAnswer[1].c=parseFloat(this.value)||0;"><span></span>
+      </div>
+      <div class="btn-row"><button class="btn" onclick="checkSimD()">Periksa Model</button>
+      <button class="btn secondary" onclick="document.getElementById('answerD').classList.toggle('hidden')">Tampilkan/Sembunyikan Kunci</button></div>
+      <div id="feedbackD" style="margin-top:8px;"></div>
+      <div id="answerD" class="summary-box hidden">Sistem yang benar: $2x+y\\le40$, $x+2y\\le30$, $x\\ge0$, $y\\ge0$.</div>
+      <p class="small" style="margin-top:10px;">Grafik daerah penyelesaian dari model yang benar:</p>
+      <canvas id="canvasD" width="520" height="420"></canvas>
+    </div>`;
+  drawPlane(document.getElementById('canvasD'), simDProblem.correct, {corners:findCorners(simDProblem.correct)});
+  renderMath();
+}
+
+/* ---------- SIMULASI E: Eksplorasi Nilai Optimum ---------- */
+let simE = [
+  {a:1,b:1,sym:'<=',c:8,active:true},
+  {a:2,b:1,sym:'<=',c:12,active:true},
+  {a:1,b:0,sym:'>=',c:0,active:true},
+  {a:0,b:1,sym:'>=',c:0,active:true}
+];
+let objE = {p:4,q:3,mode:'max'};
+function simEUpdate(){
+  const corners = findCorners(simE);
+  const status = regionStatus(simE);
+  drawPlane(document.getElementById('canvasE'), simE, {corners});
+  let html = '';
+  if(status==='kosong'){
+    html = `<div class="warn-box">Daerah penyelesaian <strong>kosong</strong>, sehingga tidak ada nilai optimum yang dapat dihitung.</div>`;
+  } else {
+    const rows = corners.map(p=>({p, val: objE.p*p[0]+objE.q*p[1]}));
+    rows.sort((a,b)=> objE.mode==='max' ? b.val-a.val : a.val-b.val);
+    const tableRows = rows.map(r=>`<tr><td>(${fmtNum(r.p[0])}, ${fmtNum(r.p[1])})</td><td>${fmtNum(r.val)}</td></tr>`).join('');
+    html = `<table class="sub-table"><tr><th>Titik Sudut</th><th>Nilai $f(x,y)=${objE.p}x+${objE.q}y$</th></tr>${tableRows || '<tr><td colspan=2>Tidak ada titik sudut terdeteksi pada jendela pandang ini.</td></tr>'}</table>`;
+    if(status==='tidak terbatas'){
+      html += `<div class="warn-box">Daerah penyelesaian <strong>tidak terbatas</strong>. Nilai ${objE.mode==='max'?'maksimum':'minimum'} yang ditampilkan hanya berlaku di antara titik sudut yang terdeteksi pada jendela pandang ini — periksa apakah fungsi objektif terus membesar/mengecil ke arah tak terbatas sebelum menyimpulkan.</div>`;
+    } else if(rows.length){
+      html += `<div class="summary-box"><strong>Nilai ${objE.mode==='max'?'maksimum':'minimum'}</strong> = ${fmtNum(rows[0].val)} pada titik (${fmtNum(rows[0].p[0])}, ${fmtNum(rows[0].p[1])}).</div>`;
+    }
+  }
+  document.getElementById('infoE').innerHTML = html;
+  renderMath();
+}
+function renderSimE(){
+  document.getElementById('simStage').innerHTML = `
+    <div class="card">
+      <h2>Simulasi E — Eksplorasi Nilai Optimum</h2>
+      <p class="small">Atur kendala daerah penyelesaian dan fungsi objektif $f(x,y)=px+qy$.</p>
+      <div id="editorE">${constraintEditorHTML(simE,'simE',true)}</div>
+      <div class="param-row" style="max-width:420px;">
+        <div><label>p</label><input type="number" value="${objE.p}" onchange="objE.p=parseFloat(this.value)||0; simEUpdate();"></div>
+        <div><label>q</label><input type="number" value="${objE.q}" onchange="objE.q=parseFloat(this.value)||0; simEUpdate();"></div>
+        <div><label>Tujuan</label><select onchange="objE.mode=this.value; simEUpdate();"><option value="max" ${objE.mode==='max'?'selected':''}>Maksimum</option><option value="min" ${objE.mode==='min'?'selected':''}>Minimum</option></select></div>
+      </div>
+      <canvas id="canvasE" width="520" height="420"></canvas>
+      <div id="infoE" style="margin-top:8px;"></div>
+      <div class="btn-row"><button class="btn amber" onclick="simE=[{a:1,b:1,sym:'<=',c:8,active:true},{a:2,b:1,sym:'<=',c:12,active:true},{a:1,b:0,sym:'>=',c:0,active:true},{a:0,b:1,sym:'>=',c:0,active:true}]; objE={p:4,q:3,mode:'max'}; renderSimE();">Reset</button></div>
+    </div>`;
+  simEUpdate();
+}
+window.simEUpdate = simEUpdate;
+
+const simList = [
+  {id:'A', judul:'Eksplorasi Garis Batas', render:renderSimA},
+  {id:'B', judul:'Sistem Pertidaksamaan', render:renderSimB},
+  {id:'C', judul:'Titik Uji', render:renderSimC},
+  {id:'D', judul:'Model Kontekstual', render:renderSimD},
+  {id:'E', judul:'Nilai Optimum', render:renderSimE}
+];
+function renderSimPicker(){
+  document.getElementById('simPicker').innerHTML = simList.map(s=>
+    `<div class="card subbab-card" onclick="simList.find(x=>x.id==='${s.id}').render()"><span class="tag">Simulasi ${s.id}</span><h3 style="font-size:1rem;">${s.judul}</h3></div>`).join('');
+}
+renderSimPicker();
+renderSimA();
+
+/* ============================================================
+   BANK SOAL — GENERATOR PERTANYAAN (untuk Latihan & Ujian)
+   Setiap panggilan menghasilkan soal baru dengan angka acak namun
+   kunci jawaban dihitung langsung dari logika matematika (bukan placeholder).
+   ============================================================ */
+let QID = 1;
+function newQ(subbab, difficulty, type, prompt, options, correct, explanation){
+  return { id: QID++, subbab, difficulty, type, prompt, options, correct, explanation, userAnswer:null, flagged:false };
+}
+function optsFrom(list){ return shuffle(list.map((t,i)=>({id:'o'+i+'_'+Math.random().toString(36).slice(2,6), text:t}))); }
+
+function ineqStr(a,b,sym,c){
+  return `$${a}x ${b>=0?'+':'-'} ${Math.abs(b)}y ${fmtSign(sym)} ${c}$`;
+}
+
+/* ---------- SUBBAB 1 ---------- */
+function gen1(type){
+  const diff = pick(['Mudah','Sedang','Sulit','HOTS']);
+  const a=randInt(1,9), b=randInt(1,9), c=randInt(5,30), sym=pick(['<=','>=','<','>']);
+  const correctLinear = ineqStr(a,b,sym,c);
+  const nonExamples = [
+    `$${a}x^2 + ${b}y ${fmtSign(sym)} ${c}$ (variabel $x$ berpangkat dua)`,
+    `$${a}x ${b>=0?'+':'-'} ${Math.abs(b)}y = ${c}$ (memakai tanda sama dengan, bukan pertidaksamaan)`,
+    `$${a}x ${fmtSign(sym)} ${c}$ (hanya memuat satu variabel)`,
+    `$\\sqrt{x} + ${b}y ${fmtSign(sym)} ${c}$ (variabel $x$ tidak berpangkat satu)`
+  ];
+  if(type==='multi'){
+    const a2=randInt(1,9), b2=randInt(1,9), c2=randInt(5,30), sym2=pick(['<=','>=','<','>']);
+    const linear2 = ineqStr(a2,b2,sym2,c2);
+    const opts = optsFrom([correctLinear, linear2, nonExamples[0], nonExamples[1]]);
+    const correctIds = opts.filter(o=>o.text===correctLinear||o.text===linear2).map(o=>o.id);
+    return newQ(1,diff,'multi','Pilih SEMUA bentuk berikut yang merupakan pertidaksamaan linear dua variabel:', opts, correctIds,
+      'Sebuah bentuk merupakan PtLDV jika memuat dua variabel berbeda, masing-masing berpangkat satu, dan menggunakan simbol ketidaksamaan (bukan "="). Bentuk kuadrat, satu variabel, atau berbentuk persamaan bukan PtLDV.');
+  }
+  if(type==='kategori'){
+    const syms = shuffle(['<','>','<=','>=']);
+    return {
+      id:QID++, subbab:1, difficulty:diff, type:'kategori',
+      prompt:'Kelompokkan setiap simbol berikut ke dalam kategori jenis garis batas yang sesuai jika digunakan dalam PtLDV:',
+      statements: syms.map((s,i)=>({id:'s'+i, text:`Simbol $${fmtSign(s)}$`})),
+      categories:['Garis penuh (tidak tegas)','Garis putus-putus (tegas)'],
+      correctMap: Object.fromEntries(syms.map((s,i)=>['s'+i, (s==='<='||s==='>=')?0:1])),
+      userMap:{}, explanation:'Simbol $\\le$ dan $\\ge$ (tidak tegas) menghasilkan garis penuh karena titik pada garis termasuk penyelesaian; simbol $<$ dan $>$ (tegas) menghasilkan garis putus-putus karena titik pada garis tidak termasuk.'
+    };
+  }
+  const opts = optsFrom([correctLinear, ...shuffle(nonExamples).slice(0,3)]);
+  const correctId = opts.find(o=>o.text===correctLinear).id;
+  return newQ(1,diff,'single','Manakah dari pilihan berikut yang merupakan pertidaksamaan linear dua variabel?', opts, correctId,
+    `Bentuk ${correctLinear} memuat dua variabel berbeda yang masing-masing berpangkat satu dan menggunakan simbol ketidaksamaan, sehingga memenuhi definisi PtLDV. Pilihan lain melanggar salah satu syarat PtLDV (pangkat, jumlah variabel, atau jenis tanda).`);
+}
+
+/* ---------- SUBBAB 2 ---------- */
+function gen2(type){
+  const diff = pick(['Mudah','Sedang','Sulit','HOTS']);
+  const a=randInt(1,8), b=randInt(1,8), c=randInt(a*2,40), sym=pick(['<=','>=','<','>']);
+  const xInt = c/a, yInt = c/b;
+  if(type==='multi'){
+    const pts = [ [xInt,0], [0,yInt], [0,0], [xInt+randInt(1,5), yInt+randInt(1,5)] ];
+    const opts = optsFrom(pts.map(p=>`(${fmtNum(p[0])}, ${fmtNum(p[1])})`));
+    const correctIds = opts.filter(o=>{
+      const [x,y] = o.text.replace(/[()]/g,'').split(',').map(Number);
+      return evalConstraint([x,y], {a,b,sym,c});
+    }).map(o=>o.id);
+    return newQ(2,diff,'multi', `Diketahui pertidaksamaan ${ineqStr(a,b,sym,c)}. Pilih SEMUA titik berikut yang memenuhi pertidaksamaan tersebut:`, opts, correctIds,
+      `Substitusikan setiap titik ke ruas kiri pertidaksamaan dan bandingkan dengan ${c} sesuai simbol ${symText(sym)}.`);
+  }
+  if(type==='kategori'){
+    const syms = shuffle(['<=','>=','<','>']);
+    return {
+      id:QID++, subbab:2, difficulty:diff, type:'kategori',
+      prompt:`Kelompokkan pertidaksamaan berikut (dengan $a=${a}, b=${b}, c=${c}$) berdasarkan jenis garis batasnya:`,
+      statements: syms.map((s,i)=>({id:'s'+i, text: ineqStr(a,b,s,c)})),
+      categories:['Garis penuh','Garis putus-putus'],
+      correctMap: Object.fromEntries(syms.map((s,i)=>['s'+i, (s==='<='||s==='>=')?0:1])),
+      userMap:{}, explanation:'Garis penuh digunakan untuk simbol $\\le$ dan $\\ge$; garis putus-putus untuk simbol $<$ dan $>$.'
+    };
+  }
+  const variant = randInt(1,3);
+  if(variant===1){
+    const correctTxt = String(fmtNum(xInt));
+    const distractorPool = [yInt, -xInt, a/c, xInt+randInt(1,3), xInt-randInt(1,3), 2*xInt].map(fmtNum).map(String);
+    const distractors = [...new Set(distractorPool.filter(t=>t!==correctTxt))].slice(0,3);
+    let bump=1; while(distractors.length<3){ const t=String(fmtNum(xInt+bump*10)); if(t!==correctTxt && !distractors.includes(t)) distractors.push(t); bump++; }
+    const opts = optsFrom([correctTxt, ...distractors]);
+    const correctId = opts.find(o=>o.text===correctTxt).id;
+    return newQ(2,diff,'single', `Garis batas dari pertidaksamaan ${ineqStr(a,b,sym,c)} memotong sumbu X pada $x=$ ...`, opts, correctId,
+      `Titik potong sumbu X diperoleh dengan mensubstitusikan $y=0$: $${a}x=${c} \\Rightarrow x=${fmtNum(xInt)}$.`);
+  } else if(variant===2){
+    const opts = optsFrom(['Garis penuh (solid)','Garis putus-putus (dashed)']);
+    const correctText = (sym==='<='||sym==='>=') ? 'Garis penuh (solid)' : 'Garis putus-putus (dashed)';
+    const correctId = opts.find(o=>o.text===correctText).id;
+    return newQ(2,diff,'single', `Jenis garis batas yang tepat untuk pertidaksamaan ${ineqStr(a,b,sym,c)} adalah ...`, opts, correctId,
+      `Simbol $${fmtSign(sym)}$ termasuk simbol ${(sym==='<='||sym==='>=')?'tidak tegas, sehingga garis digambar penuh.':'tegas, sehingga garis digambar putus-putus.'}`);
+  } else {
+    const testPt = [randInt(0,3), randInt(0,3)];
+    const ok = evalConstraint(testPt, {a,b,sym,c});
+    const opts = optsFrom(['Memenuhi pertidaksamaan','Tidak memenuhi pertidaksamaan']);
+    const correctId = opts.find(o=>o.text===(ok?'Memenuhi pertidaksamaan':'Tidak memenuhi pertidaksamaan')).id;
+    return newQ(2,diff,'single', `Apakah titik uji $(${testPt[0]}, ${testPt[1]})$ memenuhi pertidaksamaan ${ineqStr(a,b,sym,c)}?`, opts, correctId,
+      `Substitusi: $${a}(${testPt[0]}) ${b>=0?'+':'-'} ${Math.abs(b)}(${testPt[1]}) = ${fmtNum(a*testPt[0]+b*testPt[1])}$, dibandingkan dengan ${c} menggunakan simbol $${fmtSign(sym)}$ menghasilkan pernyataan ${ok?'benar':'salah'}.`);
+  }
+}
+
+/* ---------- SUBBAB 3 ---------- */
+function gen3(type){
+  const diff = pick(['Mudah','Sedang','Sulit','HOTS']);
+  const cons = [
+    {a:randInt(1,5), b:randInt(1,5), sym:pick(['<=','>=']), c:randInt(5,20)},
+    {a:randInt(1,5), b:randInt(1,5), sym:pick(['<=','>=']), c:randInt(5,20)},
+    {a:randInt(1,5), b:randInt(1,5), sym:pick(['<=','>=']), c:randInt(5,20)}
+  ];
+  let pt = [randInt(0,8), randInt(0,8)];
+  if(type==='multi'){
+    let tries=0;
+    while(!cons.some(c=>evalConstraint(pt,c)) && tries<15){ pt = [randInt(0,8), randInt(0,8)]; tries++; }
+    if(!cons.some(c=>evalConstraint(pt,c))) pt = (cons[0].sym==='<=') ? [0,0] : [50,50];
+    const opts = cons.map((c,i)=>({id:'o'+i, text:ineqStr(c.a,c.b,c.sym,c.c)}));
+    const correctIds = cons.map((c,i)=>evalConstraint(pt,c)?opts[i].id:null).filter(Boolean);
+    return newQ(3,diff,'multi', `Diberikan titik $(${pt[0]},${pt[1]})$. Pilih SEMUA pertidaksamaan berikut yang dipenuhi oleh titik tersebut:`, shuffle(opts), correctIds,
+      'Substitusikan titik ke masing-masing pertidaksamaan secara terpisah; sebuah pertidaksamaan "dipenuhi" jika hasil substitusinya menghasilkan pernyataan benar.');
+  }
+  if(type==='kategori'){
+    const sys = cons.slice(0,2);
+    const pts = [pt, [randInt(0,8),randInt(0,8)], [randInt(0,8),randInt(0,8)], [randInt(0,8),randInt(0,8)]];
+    return {
+      id:QID++, subbab:3, difficulty:diff, type:'kategori',
+      prompt:`Untuk sistem $${sys.map(c=>ineqStr(c.a,c.b,c.sym,c.c)).join('$ dan $')}$, kelompokkan titik-titik berikut:`,
+      statements: pts.map((p,i)=>({id:'s'+i, text:`(${p[0]}, ${p[1]})`})),
+      categories:['Memenuhi sistem','Tidak memenuhi sistem'],
+      correctMap: Object.fromEntries(pts.map((p,i)=>['s'+i, feasibleAll(p,sys)?0:1])),
+      userMap:{}, explanation:'Sebuah titik memenuhi sistem hanya jika titik itu memenuhi SEMUA pertidaksamaan anggota sistem sekaligus.'
+    };
+  }
+  const sys = cons.slice(0,2);
+  const semua = feasibleAll(pt,sys);
+  const opts = optsFrom(['Memenuhi seluruh sistem','Tidak memenuhi sistem (ada minimal satu kendala yang gagal)']);
+  const correctId = opts.find(o=>o.text===(semua?'Memenuhi seluruh sistem':'Tidak memenuhi sistem (ada minimal satu kendala yang gagal)')).id;
+  return newQ(3,diff,'single', `Diberikan sistem $${sys.map(c=>ineqStr(c.a,c.b,c.sym,c.c)).join('$ dan $')}$. Apakah titik $(${pt[0]},${pt[1]})$ merupakan solusi sistem tersebut?`, opts, correctId,
+    sys.map((c,i)=>`Kendala ${i+1}: substitusi menghasilkan ${fmtNum(c.a*pt[0]+c.b*pt[1])} ${symText(c.sym)} ${c.c} → ${evalConstraint(pt,c)?'benar':'salah'}.`).join(' ') + ` Kesimpulan: titik ${semua?'memenuhi':'tidak memenuhi'} sistem.`);
+}
+
+/* ---------- SUBBAB 4 ---------- */
+const daerahScenarios = [
+  {label:'$x+y\\le6$, $2x+y\\le8$, $x\\ge0$, $y\\ge0$', status:'terbatas'},
+  {label:'$x+y\\ge4$, $x\\ge0$, $y\\ge0$', status:'tidak terbatas'},
+  {label:'$x+y\\le2$, $x+y\\ge6$', status:'kosong'},
+  {label:'$x-y\\le3$, $x\\ge0$, $y\\ge0$', status:'tidak terbatas'}
+];
+function gen4(type){
+  const diff = pick(['Mudah','Sedang','Sulit','HOTS']);
+  if(type==='kategori'){
+    const scn = shuffle(daerahScenarios).slice(0,3);
+    return {
+      id:QID++, subbab:4, difficulty:diff, type:'kategori',
+      prompt:'Kelompokkan setiap sistem pertidaksamaan berikut berdasarkan sifat daerah penyelesaiannya:',
+      statements: scn.map((s,i)=>({id:'s'+i, text:'Sistem: '+s.label})),
+      categories:['Terbatas','Tidak terbatas','Kosong'],
+      correctMap: Object.fromEntries(scn.map((s,i)=>['s'+i, s.status==='terbatas'?0:s.status==='tidak terbatas'?1:2])),
+      userMap:{}, explanation:'Daerah terbatas dikelilingi penuh oleh garis batas; tidak terbatas meluas tanpa batas ke suatu arah; kosong jika tidak ada titik yang memenuhi semua pertidaksamaan sekaligus.'
+    };
+  }
+  if(type==='multi'){
+    const a1={a:1,b:1,c:randInt(6,10),sym:'<='}, a2={a:2,b:1,c:randInt(8,14),sym:'<='};
+    const nonnegX={a:1,b:0,sym:'>=',c:0}, nonnegY={a:0,b:1,sym:'>=',c:0};
+    const inter = lineIntersect({a:a1.a,b:a1.b,c:a1.c},{a:a2.a,b:a2.b,c:a2.c});
+    const interIsCorner = feasibleAll(inter, [a1,a2,nonnegX,nonnegY]);
+    const pernyataanTitik = `Titik $(${fmtNum(inter[0])}, ${fmtNum(inter[1])})$ adalah salah satu titik sudut daerah penyelesaian sistem (termasuk syarat nonnegatif)`;
+    const opts = optsFrom([
+      'Daerah penyelesaian merupakan irisan dari kedua pertidaksamaan',
+      pernyataanTitik,
+      'Semua titik potong dua garis pasti menjadi titik sudut daerah penyelesaian',
+      'Daerah penyelesaian pasti berbentuk terbatas'
+    ]);
+    const trueTexts = ['Daerah penyelesaian merupakan irisan dari kedua pertidaksamaan'];
+    if(interIsCorner) trueTexts.push(pernyataanTitik);
+    const correctIds = opts.filter(o=>trueTexts.includes(o.text)).map(o=>o.id);
+    return newQ(4,diff,'multi', `Diberikan sistem $${ineqStr(a1.a,a1.b,a1.sym,a1.c)}$ dan $${ineqStr(a2.a,a2.b,a2.sym,a2.c)}$ (beserta syarat nonnegatif $x\\ge0,y\\ge0$). Pilih SEMUA pernyataan yang benar:`, opts, correctIds,
+      `Daerah penyelesaian sistem adalah irisan seluruh pertidaksamaan (termasuk syarat nonnegatif). ${interIsCorner ? `Titik potong kedua garis, $(${fmtNum(inter[0])}, ${fmtNum(inter[1])})$, memenuhi seluruh kendala lain (termasuk $x\\ge0$ dan $y\\ge0$), sehingga BENAR merupakan titik sudut.` : `Titik potong kedua garis, $(${fmtNum(inter[0])}, ${fmtNum(inter[1])})$, TIDAK memenuhi syarat nonnegatif, sehingga titik tersebut BUKAN titik sudut daerah penyelesaian sistem ini.`} Tidak semua titik potong dua garis otomatis menjadi titik sudut — harus diperiksa terhadap seluruh kendala lain, dan sifat terbatas/tidak terbatas suatu daerah juga harus diperiksa, bukan diasumsikan.`);
+  }
+  const a1=randInt(1,4), b1=randInt(1,4), c1=randInt(6,20);
+  const a2=randInt(1,4), b2=randInt(1,4), c2=randInt(6,20);
+  const inter = lineIntersect({a:a1,b:b1,c:c1},{a:a2,b:b2,c:c2});
+  if(!inter){ return gen4(type); }
+  const correctText = `(${fmtNum(inter[0])}, ${fmtNum(inter[1])})`;
+  const candPts = [
+    [-inter[0], inter[1]], [inter[1], inter[0]], [inter[0]+1, inter[1]-1],
+    [inter[0]-1, inter[1]+1], [-inter[0], -inter[1]], [inter[0]+2, inter[1]], [inter[0], inter[1]+2], [inter[0]+3, inter[1]+1]
+  ];
+  const distractors = [];
+  for(const [x,y] of candPts){
+    const t = `(${fmtNum(x)}, ${fmtNum(y)})`;
+    if(t!==correctText && !distractors.includes(t)) distractors.push(t);
+    if(distractors.length>=3) break;
+  }
+  let bump=1; while(distractors.length<3){ const t=`(${fmtNum(inter[0]+10*bump)}, ${fmtNum(inter[1]-10*bump)})`; if(t!==correctText && !distractors.includes(t)) distractors.push(t); bump++; }
+  const opts = optsFrom([correctText, ...distractors]);
+  const correctId = opts.find(o=>o.text===correctText).id;
+  return newQ(4,diff,'single', `Tentukan titik potong (titik sudut) antara garis $${a1}x+${b1}y=${c1}$ dan $${a2}x+${b2}y=${c2}$.`, opts, correctId,
+    `Eliminasi/substitusi kedua persamaan menghasilkan $x=${fmtNum(inter[0])}$ dan $y=${fmtNum(inter[1])}$, sehingga titik potongnya adalah ${correctText}.`);
+}
+
+/* ---------- SUBBAB 5 ---------- */
+function gen5(type){
+  const diff = pick(['Mudah','Sedang','Sulit','HOTS']);
+  const a=randInt(1,6), b=randInt(1,6), c=randInt(10,40);
+  const xInt=[c/a,0], yInt=[0,c/b], origin=[0,0];
+  if(type==='multi'){
+    const correctPts = [xInt,yInt,origin];
+    const usedTexts = new Set(correctPts.map(p=>`(${fmtNum(p[0])}, ${fmtNum(p[1])})`));
+    let bump=1, decoy=[c/(2*a)+bump, c/(2*b)+bump], dtext=`(${fmtNum(decoy[0])}, ${fmtNum(decoy[1])})`;
+    while(usedTexts.has(dtext)){ bump++; decoy=[c/(2*a)+bump, c/(2*b)+bump]; dtext=`(${fmtNum(decoy[0])}, ${fmtNum(decoy[1])})`; }
+    const opts = optsFrom([...correctPts, decoy].map(p=>`(${fmtNum(p[0])}, ${fmtNum(p[1])})`));
+    const correctSet = correctPts.map(p=>`(${fmtNum(p[0])}, ${fmtNum(p[1])})`);
+    const correctIds = opts.filter(o=>correctSet.includes(o.text)).map(o=>o.id);
+    return newQ(5,diff,'multi', `Untuk sistem $x\\ge0$, $y\\ge0$, ${ineqStr(a,b,'<=',c)}, pilih SEMUA titik berikut yang merupakan titik sudut daerah penyelesaian:`, opts, correctIds,
+      `Titik sudut terbentuk pada titik asal $(0,0)$, titik potong sumbu X $(${fmtNum(xInt[0])},0)$, dan titik potong sumbu Y $(0,${fmtNum(yInt[1])})$, karena syarat nonnegatif membatasi daerah pada kuadran pertama.`);
+  }
+  const which = pick(['x','y']);
+  const correctPt = which==='x' ? xInt : yInt;
+  const distractors = [ [c/a+2, 0], [0, c/b+2], [c/(a+b), c/(a+b)] ];
+  const opts = optsFrom([correctPt, ...distractors].map(p=>`(${fmtNum(p[0])}, ${fmtNum(p[1])})`));
+  const correctId = opts.find(o=>o.text===`(${fmtNum(correctPt[0])}, ${fmtNum(correctPt[1])})`).id;
+  return newQ(5,diff,'single', `Untuk sistem $x\\ge0$, $y\\ge0$, ${ineqStr(a,b,'<=',c)}, tentukan titik sudut yang terletak pada sumbu ${which.toUpperCase()}.`, opts, correctId,
+    `Titik sudut pada sumbu ${which.toUpperCase()} diperoleh dengan mensubstitusi ${which==='x'?'y=0':'x=0'} ke garis batas $${a}x+${b}y=${c}$, menghasilkan titik (${fmtNum(correctPt[0])}, ${fmtNum(correctPt[1])}).`);
+}
+
+/* ---------- SUBBAB 6 ---------- */
+const kontekstualTemplates = [
+  (p1,p2,cap)=>({teks:`Sebuah gudang menampung barang jenis A ($x$) dan jenis B ($y$) dengan kapasitas maksimal ${cap} unit. Setiap unit A membutuhkan ${p1} m² dan setiap unit B membutuhkan ${p2} m², dengan luas gudang tersedia maksimal ${cap*Math.max(p1,p2)} m².`,
+    cons:[{a:1,b:1,sym:'<=',c:cap},{a:p1,b:p2,sym:'<=',c:cap*Math.max(p1,p2)}]}),
+  (p1,p2,cap)=>({teks:`Seorang penjahit membuat baju ($x$) dan celana ($y$). Waktu menjahit baju ${p1} jam dan celana ${p2} jam, dengan total waktu kerja maksimal ${cap} jam per hari, dan kain tersedia maksimal ${cap} meter dengan kebutuhan 1 meter per potong (baju maupun celana).`,
+    cons:[{a:p1,b:p2,sym:'<=',c:cap},{a:1,b:1,sym:'<=',c:cap}]})
+];
+function gen6(type){
+  const diff = pick(['Mudah','Sedang','Sulit','HOTS']);
+  const p1=randInt(2,5), p2=randInt(2,5), cap=randInt(10,30);
+  const tmpl = pick(kontekstualTemplates)(p1,p2,cap);
+  const correctSys = [...tmpl.cons, {a:1,b:0,sym:'>=',c:0}, {a:0,b:1,sym:'>=',c:0}];
+  const correctText = correctSys.map(c=>ineqStr(c.a,c.b,c.sym,c.c)).join(', ');
+  if(type==='multi'){
+    const candidates = [
+      ...tmpl.cons.map(c=>ineqStr(c.a,c.b,c.sym,c.c)),
+      ineqStr(1,0,'>=',0), ineqStr(0,1,'>=',0),
+      ineqStr(tmpl.cons[0].a,tmpl.cons[0].b,'>=',tmpl.cons[0].c) // salah arah
+    ];
+    const opts = optsFrom(candidates);
+    const correctTextsSet = correctSys.map(c=>ineqStr(c.a,c.b,c.sym,c.c));
+    const correctIds = opts.filter(o=>correctTextsSet.includes(o.text)).map(o=>o.id);
+    return newQ(6,diff,'multi', `${tmpl.teks} Pilih SEMUA pertidaksamaan yang benar-benar menjadi bagian dari model matematika permasalahan ini:`, opts, correctIds,
+      'Setiap kendala kapasitas/waktu diterjemahkan sesuai kata kunci "maksimal" menjadi simbol $\\le$, dan syarat nonnegatif $x\\ge0,y\\ge0$ selalu disertakan karena $x,y$ mewakili banyak barang.');
+  }
+  const distractorSys1 = [{...tmpl.cons[0], sym:'>='}, tmpl.cons[1], {a:1,b:0,sym:'>=',c:0}, {a:0,b:1,sym:'>=',c:0}];
+  const distractorSys2 = [tmpl.cons[0], {...tmpl.cons[1], sym:'>='}, {a:1,b:0,sym:'>=',c:0}, {a:0,b:1,sym:'>=',c:0}];
+  const distractorSys3 = [{...tmpl.cons[0], c:tmpl.cons[0].c+5}, tmpl.cons[1], {a:1,b:0,sym:'>=',c:0}, {a:0,b:1,sym:'>=',c:0}];
+  const toText = s=>s.map(c=>ineqStr(c.a,c.b,c.sym,c.c)).join(', ');
+  const opts = optsFrom([correctText, toText(distractorSys1), toText(distractorSys2), toText(distractorSys3)]);
+  const correctId = opts.find(o=>o.text===correctText).id;
+  return newQ(6,diff,'single', `${tmpl.teks} Manakah sistem pertidaksamaan yang tepat memodelkan permasalahan tersebut?`, opts, correctId,
+    `Kata kunci "maksimal" pada setiap kendala diterjemahkan menjadi simbol $\\le$. Karena $x$ dan $y$ mewakili banyak barang, ditambahkan syarat nonnegatif $x\\ge0, y\\ge0$. Sistem yang tepat: ${correctText}.`);
+}
+
+/* ---------- SUBBAB 7 ---------- */
+function gen7(type){
+  const diff = pick(['Mudah','Sedang','Sulit','HOTS']);
+  const corners = [[0,0],[randInt(4,8),0],[randInt(1,4),randInt(3,7)],[0,randInt(4,8)]];
+  const p=randInt(1,6), q=randInt(1,6);
+  const mode = pick(['maksimum','minimum']);
+  const vals = corners.map(pt=>p*pt[0]+q*pt[1]);
+  const best = mode==='maksimum' ? Math.max(...vals) : Math.min(...vals);
+  const bestPt = corners[vals.indexOf(best)];
+  if(type==='multi'){
+    const sortedVals = [...vals].sort((x,y)=>x-y);
+    const threshold = sortedVals[1] - 0.5;
+    const opts = corners.map((pt,i)=>({id:'o'+i, text:`(${pt[0]},${pt[1]}) → f=${vals[i]}`}));
+    const correctIds = corners.map((pt,i)=> vals[i]>threshold ? opts[i].id : null).filter(Boolean);
+    return newQ(7,diff,'multi', `Diketahui titik sudut $(0,0)$, $(${corners[1][0]},${corners[1][1]})$, $(${corners[2][0]},${corners[2][1]})$, $(${corners[3][0]},${corners[3][1]})$ dan $f(x,y)=${p}x+${q}y$. Pilih SEMUA titik sudut yang menghasilkan nilai $f(x,y)$ lebih dari ${threshold}:`, opts, correctIds,
+      `Nilai $f$ pada tiap titik: ${corners.map((pt,i)=>`(${pt[0]},${pt[1]})\\to${vals[i]}`).join(', ')}. Titik dengan nilai $>${threshold}$ dipilih sebagai jawaban benar.`);
+  }
+  const distractPool = [...new Set(vals.filter(v=>v!==best))];
+  const distractorVals = shuffle(distractPool).slice(0,3);
+  let bump=1; while(distractorVals.length<3){ const cand=best+bump*7+3; if(cand!==best && !distractorVals.includes(cand)){ distractorVals.push(cand);} bump++; }
+  const opts = optsFrom([String(best), ...distractorVals.map(String)]);
+  const correctId = opts.find(o=>o.text===String(best)).id;
+  return newQ(7,diff,'single', `Diketahui titik-titik sudut daerah penyelesaian $(0,0), (${corners[1][0]},${corners[1][1]}), (${corners[2][0]},${corners[2][1]}), (${corners[3][0]},${corners[3][1]})$ dan fungsi objektif $f(x,y)=${p}x+${q}y$. Tentukan nilai ${mode} dari $f(x,y)$.`, opts, correctId,
+    `Nilai $f$ pada setiap titik sudut: ${corners.map((pt,i)=>`$f(${pt[0]},${pt[1]})=${vals[i]}$`).join(', ')}. Nilai ${mode} adalah ${best}, tercapai pada titik (${bestPt[0]},${bestPt[1]}).`);
+}
+
+/* ---------- SUBBAB 8 ---------- */
+function gen8(type){
+  const diff = pick(['Mudah','Sedang','Sulit','HOTS']);
+  const cons = [
+    {a:randInt(1,5), b:randInt(1,5), sym:pick(['<=','>=']), c:randInt(5,20)},
+    {a:randInt(1,5), b:randInt(1,5), sym:pick(['<=','>=']), c:randInt(5,20)},
+    {a:1,b:0,sym:'>=',c:0}, {a:0,b:1,sym:'>=',c:0}
+  ];
+  const pt = [randInt(-2,8), randInt(-2,8)];
+  const results = cons.map(c=>evalConstraint(pt,c));
+  const failing = cons.map((c,i)=>results[i]?null:i).filter(v=>v!==null);
+  if(type==='multi' && failing.length>=1){
+    const opts = cons.map((c,i)=>({id:'o'+i, text:`Kendala ${i+1}: ${ineqStr(c.a,c.b,c.sym,c.c)}`}));
+    const correctIds = failing.map(i=>opts[i].id);
+    return newQ(8,diff,'multi', `Diberikan sistem dengan empat kendala berikut untuk titik $(${pt[0]},${pt[1]})$, pilih SEMUA kendala yang TIDAK dipenuhi oleh titik tersebut:`, opts, correctIds,
+      cons.map((c,i)=>`Kendala ${i+1}: ${fmtNum(c.a*pt[0]+c.b*pt[1])} ${symText(c.sym)} ${c.c} → ${results[i]?'benar':'salah'}`).join('. '));
+  }
+  const layak = results.every(Boolean);
+  const opts = optsFrom(['Titik tersebut LAYAK (memenuhi seluruh sistem)','Titik tersebut TIDAK LAYAK (ada kendala yang dilanggar)']);
+  const correctId = opts.find(o=>o.text===(layak?'Titik tersebut LAYAK (memenuhi seluruh sistem)':'Titik tersebut TIDAK LAYAK (ada kendala yang dilanggar)')).id;
+  return newQ(8,diff,'single', `Diberikan sistem kendala $${cons.map(c=>ineqStr(c.a,c.b,c.sym,c.c)).join('$, $')}$. Periksa apakah titik $(${pt[0]},${pt[1]})$ merupakan solusi yang layak (feasible).`, opts, correctId,
+    cons.map((c,i)=>`Kendala ${i+1}: ${fmtNum(c.a*pt[0]+c.b*pt[1])} ${symText(c.sym)} ${c.c} → ${results[i]?'benar':'salah'}`).join('. ') + ` Kesimpulan: titik ${layak?'LAYAK':'TIDAK LAYAK'}.`);
+}
+
+const generators = {1:gen1,2:gen2,3:gen3,4:gen4,5:gen5,6:gen6,7:gen7,8:gen8};
+
+function typePlan(n){
+  const plan = new Array(n).fill('single');
+  if(n>=2) plan[0]='multi';
+  if(n>=4) plan[1]='kategori';
+  if(n>=8) plan[2]='multi';
+  return shuffle(plan);
+}
+function buildBank(distribution){
+  let bank = [];
+  Object.entries(distribution).forEach(([sub,count])=>{
+    const plan = typePlan(count);
+    for(let i=0;i<count;i++){
+      bank.push(generators[sub](plan[i]));
+    }
+  });
+  return shuffle(bank);
+}
+function isCorrect(q){
+  if(q.type==='single') return q.userAnswer!=null && q.userAnswer===q.correct;
+  if(q.type==='multi'){
+    if(!q.userAnswer) return false;
+    const a = [...q.userAnswer].sort(), b=[...q.correct].sort();
+    return a.length===b.length && a.every((v,i)=>v===b[i]);
+  }
+  if(q.type==='kategori'){
+    return q.statements.every(s=> q.userMap[s.id]!==undefined && q.userMap[s.id]===q.correctMap[s.id]);
+  }
+  return false;
+}
+function isAnswered(q){
+  if(q.type==='single') return q.userAnswer!=null;
+  if(q.type==='multi') return q.userAnswer && q.userAnswer.length>0;
+  if(q.type==='kategori') return q.statements.every(s=> q.userMap[s.id]!==undefined);
+  return false;
+}
+
+/* ============================================================
+   TAB LATIHAN TKA (50 soal)
+   ============================================================ */
+const LATIHAN_DIST = {1:6,2:8,3:8,4:8,5:4,6:7,7:6,8:3};
+const SUBBAB_NAMA = {1:'Konsep dasar',2:'Grafik pertidaksamaan',3:'Sistem pertidaksamaan',4:'Daerah penyelesaian & titik sudut',5:'Syarat nonnegatif',6:'Model matematika kontekstual',7:'Nilai optimum',8:'Interpretasi & evaluasi solusi'};
+let latihan = { bank:[], idx:0, started:false, checked:{} };
+
+function startLatihan(){
+  latihan.bank = buildBank(LATIHAN_DIST);
+  latihan.idx = 0;
+  latihan.started = true;
+  latihan.checked = {};
+  latihan.waktuMulai = new Date();
+  renderLatihan();
+}
+function renderLatihanIntro(){
+  document.getElementById('latihanStage').innerHTML = `
+    <div class="card">
+      <h2>Latihan TKA — Sistem Pertidaksamaan Linear Dua Variabel</h2>
+      <p>Bank latihan berisi <strong>50 soal</strong> yang mencakup seluruh subbab SPtLDV, dengan urutan diacak setiap kali sesi baru dimulai.</p>
+      <table class="sub-table"><tr><th>Subbab</th><th>Jumlah Soal</th></tr>
+      ${Object.entries(LATIHAN_DIST).map(([k,v])=>`<tr><td>${SUBBAB_NAMA[k]}</td><td>${v}</td></tr>`).join('')}
+      <tr><th>Total</th><th>50</th></tr></table>
+      <p class="small">Terdapat tiga jenis soal: pilihan ganda sederhana (satu jawaban benar), pilihan ganda kompleks (pilih semua jawaban benar — dinilai benar hanya jika seluruh pilihan yang dipilih tepat sesuai kunci), dan pilihan ganda kompleks kategori (mengelompokkan pernyataan ke kategori yang sesuai).</p>
+      <div class="btn-row"><button class="btn" onclick="startLatihan()">Mulai Latihan</button></div>
+    </div>`;
+}
+function latihanProgressHTML(){
+  const total = latihan.bank.length;
+  const answered = latihan.bank.filter(isAnswered).length;
+  return `<div class="progress-bar"><div style="width:${answered/total*100}%"></div></div><p class="small">${answered} dari ${total} soal telah dijawab.</p>`;
+}
+const OPTION_LETTERS = ['A','B','C','D','E'];
+function renderQuestionBody(q, mode){ // mode: 'latihan' shows immediate check button
+  let body = `<p style="font-size:1.02rem;">${q.prompt}</p>`;
+  const checked = mode==='latihan' ? latihan.checked[q.id] : false;
+  if(q.type==='single'){
+    body += q.options.map((o,i)=>{
+      let cls='option'; if(q.userAnswer===o.id) cls+=' selected';
+      if(checked){ if(o.id===q.correct) cls+=' correct'; else if(q.userAnswer===o.id) cls+=' incorrect'; }
+      return `<div class="${cls}" onclick="${checked?'':`selectSingle(${q.id},'${o.id}')`}"><strong>${OPTION_LETTERS[i]}.</strong>&nbsp; ${o.text}</div>`;
+    }).join('');
+  } else if(q.type==='multi'){
+    body += `<p class="small">(Pilih satu atau lebih jawaban yang benar)</p>`;
+    body += q.options.map((o,i)=>{
+      const sel = q.userAnswer && q.userAnswer.includes(o.id);
+      let cls='option'; if(sel) cls+=' selected';
+      if(checked){ const isCorr = q.correct.includes(o.id); if(isCorr) cls+=' correct'; else if(sel) cls+=' incorrect'; }
+      return `<div class="${cls}" onclick="${checked?'':`toggleMulti(${q.id},'${o.id}')`}"><strong>${OPTION_LETTERS[i]}.</strong>&nbsp; ${o.text} ${sel?'<span class="badge warn" style="margin-left:6px;">dipilih</span>':''}</div>`;
+    }).join('');
+  } else if(q.type==='kategori'){
+    body += `<p class="small">${q.categories.length===2 ? 'Tentukan Benar/Salah (atau kategori yang sesuai) untuk tiap pernyataan berikut:' : 'Pilih kategori yang sesuai (A/B/C) untuk tiap pernyataan berikut:'}</p>`;
+    body += q.statements.map(s=>{
+      const val = q.userMap[s.id];
+      return `<div class="example-box" style="margin:8px 0;">
+        <p style="margin:0 0 8px;"><strong>${s.text}</strong></p>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          ${q.categories.map((c,ci)=>{
+            let cls='option'; if(String(val)===String(ci)) cls+=' selected';
+            if(checked){ if(ci===q.correctMap[s.id]) cls+=' correct'; else if(String(val)===String(ci)) cls+=' incorrect'; }
+            return `<div class="${cls}" style="flex:1; min-width:130px; margin-bottom:0; text-align:center;" onclick="${checked?'':`setKategori(${q.id},'${s.id}','${ci}')`}"><strong>${OPTION_LETTERS[ci]}.</strong> ${c}</div>`;
+          }).join('')}
+        </div>
+      </div>`;
+    }).join('');
+  }
+  if(checked){
+    const correct = isCorrect(q);
+    body += `<div class="${correct?'tip-box':'warn-box'}" style="margin-top:10px;"><strong>${correct?'Jawaban benar!':'Belum tepat.'}</strong> ${q.explanation}</div>`;
+  }
+  return body;
+}
+function selectSingle(qid, oid){ const q = latihan.bank.find(x=>x.id===qid) || (ujian.bank||[]).find(x=>x.id===qid); q.userAnswer = oid; renderActiveStage(); }
+function toggleMulti(qid, oid){
+  const q = latihan.bank.find(x=>x.id===qid) || (ujian.bank||[]).find(x=>x.id===qid);
+  q.userAnswer = q.userAnswer || [];
+  const i = q.userAnswer.indexOf(oid);
+  if(i>=0) q.userAnswer.splice(i,1); else q.userAnswer.push(oid);
+  renderActiveStage();
+}
+function setKategori(qid, sid, val){
+  const q = latihan.bank.find(x=>x.id===qid) || (ujian.bank||[]).find(x=>x.id===qid);
+  q.userMap[sid] = val===''? undefined : parseInt(val);
+  renderActiveStage();
+}
+function renderActiveStage(){
+  if(document.getElementById('panel-latihan').classList.contains('active') && latihan.started) renderLatihan();
+  if(document.getElementById('panel-ujian').classList.contains('active') && ujian.started) renderUjian();
+}
+function renderLatihan(){
+  if(!latihan.started){ renderLatihanIntro(); return; }
+  const q = latihan.bank[latihan.idx];
+  const stage = document.getElementById('latihanStage');
+  stage.innerHTML = `
+    <div class="card">
+      <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+        <h2 style="margin:0;">Soal ${latihan.idx+1} / ${latihan.bank.length}</h2>
+        <span class="badge warn">${SUBBAB_NAMA[q.subbab]} · ${q.difficulty}</span>
+      </div>
+      ${latihanProgressHTML()}
+      <div class="qnav">${latihan.bank.map((qq,i)=>`<button class="${i===latihan.idx?'current':''} ${isAnswered(qq)?'answered':''}" onclick="latihan.idx=${i}; renderLatihan();">${i+1}</button>`).join('')}</div>
+      <div id="qbody">${renderQuestionBody(q,'latihan')}</div>
+      <div class="btn-row">
+        <button class="btn secondary" onclick="latihan.idx=Math.max(0,latihan.idx-1); renderLatihan();" ${latihan.idx===0?'disabled':''}>← Soal Sebelumnya</button>
+        <button class="btn" onclick="latihan.idx=Math.min(latihan.bank.length-1,latihan.idx+1); renderLatihan();" ${latihan.idx===latihan.bank.length-1?'disabled':''}>Soal Berikutnya →</button>
+        ${!latihan.checked[q.id] ? `<button class="btn amber" onclick="checkLatihanAnswer(${q.id})">Periksa Jawaban</button>` : ''}
+        <button class="btn secondary" onclick="finishLatihan()">Lihat Skor & Selesai</button>
+      </div>
+    </div>`;
+  renderMath();
+}
+function checkLatihanAnswer(qid){
+  const q = latihan.bank.find(x=>x.id===qid);
+  latihan.checked[qid] = true;
+  const ok = isCorrect(q);
+  if(ok){ sfxCorrect(); flash('Jawaban benar!', true); } else { sfxWrong(); flash('Belum tepat, coba pelajari pembahasannya.', false); }
+  renderLatihan();
+}
+function finishLatihan(){
+  const total = latihan.bank.length;
+  const correctCount = latihan.bank.filter(isCorrect).length;
+  const bySub = {};
+  Object.keys(LATIHAN_DIST).forEach(k=>bySub[k]={correct:0,total:0});
+  latihan.bank.forEach(q=>{ bySub[q.subbab].total++; if(isCorrect(q)) bySub[q.subbab].correct++; });
+  sfxFinish();
+  const waktuSelesai = new Date();
+  const durasiDetik = Math.max(0, Math.round((waktuSelesai - (latihan.waktuMulai||waktuSelesai))/1000));
+  const skor = Math.round(correctCount/total*100);
+  const level = levelKompetensi(skor);
+  document.getElementById('latihanStage').innerHTML = `
+    <div class="card">
+      <h2>Ringkasan Hasil Latihan</h2>
+      <p style="font-size:1.4rem;"><strong>${correctCount} / ${total}</strong> benar (${skor}%)</p>
+      <table class="sub-table"><tr><th>Subbab</th><th>Benar</th><th>Total</th></tr>
+      ${Object.entries(bySub).map(([k,v])=>`<tr><td>${SUBBAB_NAMA[k]}</td><td>${v.correct}</td><td>${v.total}</td></tr>`).join('')}</table>
+      <div class="btn-row">
+        <button class="btn" onclick="startLatihan()">Ulangi Latihan (acak ulang)</button>
+        <button class="btn secondary" onclick="latihan.started=false; renderLatihan();">Kembali ke Menu</button>
+      </div>
+    </div>`;
+  const payload = {
+    nomorPeserta: window.dataLogin?.nomorPeserta, nama: window.dataLogin?.nama, kelas: window.dataLogin?.kelas, bidang: window.dataLogin?.bidang,
+    jenisSesi:'Latihan TKA',
+    waktuMulai:(latihan.waktuMulai||waktuSelesai).toLocaleString('id-ID'), waktuSelesai:waktuSelesai.toLocaleString('id-ID'),
+    durasiText:hitungDurasiText(durasiDetik), durasiDetik,
+    skor, jumlahBenar:correctCount, jumlahSalah: total-correctCount, jumlahKosong:0,
+    levelKompetensi: level, logJawaban: buildLogJawaban(latihan.bank)
+  };
+  tampilkanModalRingkasan('Latihan', { skor, durasiText:hitungDurasiText(durasiDetik), level, payload });
+}
+renderLatihanIntro();
+
+/* ============================================================
+   TAB UJIAN (25 soal, 60 menit)
+   ============================================================ */
+const UJIAN_DIST = {1:3,2:4,3:4,4:4,5:2,6:3,7:3,8:2};
+let ujian = { bank:[], idx:0, started:false, finished:false, durationSec:3600, timeLeft:3600, timerId:null };
+
+function renderUjianIntro(){
+  document.getElementById('ujianStage').innerHTML = `
+    <div class="card">
+      <h2>Ujian Mandiri — SPtLDV</h2>
+      <p>Ujian ini berisi <strong>tepat 25 soal</strong> dengan durasi <strong>60 menit</strong> (dapat dikonfigurasi di bawah).</p>
+      <table class="sub-table"><tr><th>Subbab</th><th>Jumlah Soal</th></tr>
+      ${Object.entries(UJIAN_DIST).map(([k,v])=>`<tr><td>${SUBBAB_NAMA[k]}</td><td>${v}</td></tr>`).join('')}
+      <tr><th>Total</th><th>25</th></tr></table>
+      <h3>Petunjuk Ujian</h3>
+      <ol>
+        <li>Urutan soal diacak setiap sesi ujian baru dimulai.</li>
+        <li>Kunci jawaban dan pembahasan TIDAK ditampilkan selama ujian berlangsung.</li>
+        <li>Jawabanmu tersimpan otomatis ketika berpindah nomor soal; timer TIDAK direset saat berpindah soal.</li>
+        <li>Gunakan tombol "Tandai untuk Ditinjau" untuk menandai soal yang ingin diperiksa kembali.</li>
+        <li>Jika waktu habis, ujian otomatis diakhiri dan jawaban yang tersimpan akan dinilai.</li>
+        <li><strong>Aturan penilaian:</strong> soal pilihan ganda sederhana bernilai penuh jika jawaban tepat. Soal pilihan ganda kompleks dinilai <em>semua-atau-tidak-sama-sekali</em> — bernilai penuh hanya jika seluruh opsi yang dipilih persis sesuai kunci (tidak ada skor parsial). Soal kompleks kategori dinilai penuh hanya jika seluruh pernyataan dikelompokkan dengan benar. Jawaban yang tidak memenuhi ketentuan kunci tidak diberi skor.</li>
+      </ol>
+      <div class="param-row" style="max-width:220px;">
+        <div><label>Durasi (menit)</label><input type="number" id="ujianDurasi" value="60" min="5" max="180"></div>
+      </div>
+      <div class="btn-row"><button class="btn" onclick="startUjian()">Mulai Ujian</button></div>
+    </div>`;
+}
+function startUjian(){
+  const menit = parseInt(document.getElementById('ujianDurasi')?.value) || 60;
+  ujian.bank = buildBank(UJIAN_DIST);
+  ujian.idx = 0;
+  ujian.started = true;
+  ujian.finished = false;
+  ujian.durationSec = menit*60;
+  ujian.timeLeft = menit*60;
+  ujian.waktuMulai = new Date();
+  clearInterval(ujian.timerId);
+  ujian.timerId = setInterval(ujianTick, 1000);
+  renderUjian();
+}
+function ujianTick(){
+  if(!ujian.started || ujian.finished) return;
+  ujian.timeLeft--;
+  if(ujian.timeLeft<=0){ ujian.timeLeft=0; submitUjian(true); return; }
+  const pill = document.getElementById('ujianTimer');
+  if(pill){ pill.textContent = fmtTime(ujian.timeLeft); pill.className = 'timer-pill' + (ujian.timeLeft<300?' low':''); }
+}
+function fmtTime(s){ const m=Math.floor(s/60), sec=s%60; return `${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`; }
+function toggleFlag(qid){ const q = ujian.bank.find(x=>x.id===qid); q.flagged = !q.flagged; renderUjian(); }
+function renderUjian(){
+  if(!ujian.started){ renderUjianIntro(); return; }
+  if(ujian.finished){ renderUjianResult(); return; }
+  const q = ujian.bank[ujian.idx];
+  const stage = document.getElementById('ujianStage');
+  stage.innerHTML = `
+    <div class="card">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+        <h2 style="margin:0;">Soal ${ujian.idx+1} / ${ujian.bank.length}</h2>
+        <span class="timer-pill" id="ujianTimer">${fmtTime(ujian.timeLeft)}</span>
+      </div>
+      <div class="qnav">${ujian.bank.map((qq,i)=>`<button class="${i===ujian.idx?'current':''} ${isAnswered(qq)?'answered':''} ${qq.flagged?'flagged':''}" onclick="ujian.idx=${i}; renderUjian();">${i+1}</button>`).join('')}</div>
+      <p class="small">Hijau = sudah dijawab · Kuning = ditandai untuk ditinjau</p>
+      <div id="qbody">${renderQuestionBody(q,'ujian')}</div>
+      <div class="btn-row">
+        <button class="btn secondary" onclick="ujian.idx=Math.max(0,ujian.idx-1); renderUjian();" ${ujian.idx===0?'disabled':''}>← Sebelumnya</button>
+        <button class="btn" onclick="ujian.idx=Math.min(ujian.bank.length-1,ujian.idx+1); renderUjian();" ${ujian.idx===ujian.bank.length-1?'disabled':''}>Berikutnya →</button>
+        <button class="btn amber" onclick="toggleFlag(${q.id})">${q.flagged?'Batalkan Tanda':'🏳 Tandai untuk Ditinjau'}</button>
+        <button class="btn secondary" onclick="confirmSubmitUjian()">Selesaikan Ujian</button>
+      </div>
+    </div>`;
+  renderMath();
+}
+function confirmSubmitUjian(){
+  const total = ujian.bank.length;
+  const answered = ujian.bank.filter(isAnswered).length;
+  const stage = document.getElementById('ujianStage');
+  const warn = answered<total ? `<div class="warn-box">Masih ada <strong>${total-answered}</strong> soal yang belum dijawab. Soal yang tidak dijawab akan dinilai salah/tidak dijawab.</div>` : '';
+  stage.insertAdjacentHTML('beforeend', `
+    <div class="modal-overlay" id="confirmModal"><div class="modal-box">
+      <h3>Konfirmasi Pengumpulan Ujian</h3>
+      <p>Kamu telah menjawab ${answered} dari ${total} soal.</p>
+      ${warn}
+      <p>Apakah kamu yakin ingin menyelesaikan ujian sekarang? Jawaban tidak dapat diubah setelah dikumpulkan.</p>
+      <div class="btn-row">
+        <button class="btn secondary" onclick="document.getElementById('confirmModal').remove()">Batal</button>
+        <button class="btn" onclick="submitUjian(false)">Ya, Kumpulkan Ujian</button>
+      </div>
+    </div></div>`);
+}
+function submitUjian(timeUp){
+  clearInterval(ujian.timerId);
+  ujian.finished = true;
+  ujian.waktuSelesai = new Date();
+  document.getElementById('confirmModal')?.remove();
+  sfxFinish();
+  renderUjianResult(timeUp);
+  const total = ujian.bank.length;
+  const correctCount = ujian.bank.filter(isCorrect).length;
+  const score = Math.round(correctCount/total*100);
+  const durasiDetik = Math.max(0, ujian.durationSec - ujian.timeLeft);
+  const payload = {
+    nomorPeserta: window.dataLogin?.nomorPeserta, nama: window.dataLogin?.nama, kelas: window.dataLogin?.kelas, bidang: window.dataLogin?.bidang,
+    jenisSesi:'Ujian',
+    waktuMulai:(ujian.waktuMulai||ujian.waktuSelesai).toLocaleString('id-ID'), waktuSelesai:ujian.waktuSelesai.toLocaleString('id-ID'),
+    durasiText:hitungDurasiText(durasiDetik), durasiDetik,
+    skor:score, jumlahBenar:correctCount, jumlahSalah: ujian.bank.filter(q=>isAnswered(q)&&!isCorrect(q)).length,
+    jumlahKosong: ujian.bank.filter(q=>!isAnswered(q)).length,
+    levelKompetensi: levelKompetensi(score), logJawaban: buildLogJawaban(ujian.bank)
+  };
+  tampilkanModalRingkasan('Ujian', { skor:score, durasiText:hitungDurasiText(durasiDetik), level:levelKompetensi(score), payload });
+}
+function renderUjianResult(timeUp){
+  const total = ujian.bank.length;
+  const correctCount = ujian.bank.filter(isCorrect).length;
+  const wrongCount = ujian.bank.filter(q=>isAnswered(q) && !isCorrect(q)).length;
+  const unanswered = ujian.bank.filter(q=>!isAnswered(q)).length;
+  const score = Math.round(correctCount/total*100);
+  const bySub = {};
+  Object.keys(UJIAN_DIST).forEach(k=>bySub[k]={correct:0,total:0});
+  ujian.bank.forEach(q=>{ bySub[q.subbab].total++; if(isCorrect(q)) bySub[q.subbab].correct++; });
+  let kategoriCapaian, saran;
+  if(score>=90){ kategoriCapaian='Sangat Baik'; saran='Pertahankan pemahamanmu dan coba tantangan soal HOTS lebih lanjut.'; }
+  else if(score>=75){ kategoriCapaian='Baik'; saran='Perkuat kembali subbab dengan skor terendah pada tabel di bawah.'; }
+  else if(score>=60){ kategoriCapaian='Cukup'; saran='Pelajari ulang materi Teori dan Prosedur, khususnya subbab dengan skor rendah.'; }
+  else { kategoriCapaian='Perlu Bimbingan'; saran='Disarankan mengulang tab Teori dan Prosedur secara menyeluruh sebelum mencoba ujian kembali.'; }
+  const weakest = Object.entries(bySub).sort((a,b)=> (a[1].correct/a[1].total) - (b[1].correct/b[1].total))[0];
+  document.getElementById('ujianStage').innerHTML = `
+    <div class="card">
+      <h2>Hasil Ujian ${timeUp?'(waktu habis — dinilai otomatis)':''}</h2>
+      <p style="font-size:1.6rem;"><strong>Skor Akhir: ${score} / 100</strong></p>
+      <table class="sub-table">
+        <tr><td>Jumlah jawaban benar</td><td>${correctCount}</td></tr>
+        <tr><td>Jumlah jawaban salah</td><td>${wrongCount}</td></tr>
+        <tr><td>Jumlah soal tidak dijawab</td><td>${unanswered}</td></tr>
+        <tr><td>Persentase pencapaian</td><td>${score}%</td></tr>
+        <tr><td>Kategori capaian belajar</td><td><span class="badge ${score>=75?'ok':score>=60?'warn':'bad'}">${kategoriCapaian}</span></td></tr>
+      </table>
+      <table class="sub-table"><tr><th>Subbab</th><th>Benar</th><th>Total</th></tr>
+      ${Object.entries(bySub).map(([k,v])=>`<tr><td>${SUBBAB_NAMA[k]}</td><td>${v.correct}</td><td>${v.total}</td></tr>`).join('')}</table>
+      <div class="summary-box"><strong>Rekomendasi:</strong> ${saran} Subbab yang perlu dipelajari ulang: <strong>${SUBBAB_NAMA[weakest[0]]}</strong>.</div>
+      <p class="small"><strong>Kategori capaian:</strong> ≥90 Sangat Baik · 75–89 Baik · 60–74 Cukup · &lt;60 Perlu Bimbingan.</p>
+      <div class="btn-row">
+        <button class="btn" onclick="startUjian()">Ulangi Ujian</button>
+        <button class="btn secondary" onclick="renderUjianReview()">Lihat Kunci Jawaban &amp; Pembahasan</button>
+        <button class="btn secondary" onclick="ujian.started=false; renderUjian();">Kembali ke Menu</button>
+      </div>
+    </div>`;
+  renderMath();
+}
+function renderUjianReview(){
+  const stage = document.getElementById('ujianStage');
+  stage.innerHTML = `<div class="card"><h2>Pembahasan Ujian</h2>
+    ${ujian.bank.map((q,i)=>{
+      const correct = isCorrect(q);
+      let answerDisplay = '';
+      if(q.type==='single'){ answerDisplay = `Jawabanmu: ${q.options.find(o=>o.id===q.userAnswer)?.text || '(tidak dijawab)'} · Kunci: ${q.options.find(o=>o.id===q.correct).text}`; }
+      else if(q.type==='multi'){ answerDisplay = `Jawabanmu: ${(q.userAnswer||[]).map(id=>q.options.find(o=>o.id===id)?.text).join(', ') || '(tidak dijawab)'} · Kunci: ${q.correct.map(id=>q.options.find(o=>o.id===id).text).join(', ')}`; }
+      else if(q.type==='kategori'){ answerDisplay = q.statements.map(s=>`${s.text} → jawabanmu: ${q.categories[q.userMap[s.id]] ?? '(kosong)'} | kunci: ${q.categories[q.correctMap[s.id]]}`).join('<br>'); }
+      return `<div class="example-box"><strong>Soal ${i+1} (${SUBBAB_NAMA[q.subbab]}):</strong> ${q.prompt}<br><span class="small">${answerDisplay}</span>
+      <div class="${correct?'tip-box':'warn-box'}">${correct?'Benar. ':'Kurang tepat. '}${q.explanation}</div></div>`;
+    }).join('')}
+    <div class="btn-row"><button class="btn secondary" onclick="renderUjianResult()">← Kembali ke Ringkasan Hasil</button></div>
+  </div>`;
+  renderMath();
+}
+renderUjianIntro();
+</script>
+</body>
+</html>
